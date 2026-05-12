@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViaLivre — Direção 4 Refinada</title>
+<style>
+/* ── Google Fonts substitute (system fonts que se comportam similar) ── */
+/* Em produção: Instrument Serif + Plus Jakarta Sans + JetBrains Mono via Google Fonts */
+
+:root {
+  --green:          oklch(62% 0.18 145);
+  --green-hover:    oklch(55% 0.18 145);
+  --green-dark:     oklch(42% 0.16 145);
+  --green-subtle:   oklch(95% 0.04 145);
+  --green-mid:      oklch(78% 0.12 145);
+
+  --ink:            oklch(13% 0.01 145);
+  --ink-secondary:  oklch(38% 0.01 145);
+  --ink-tertiary:   oklch(60% 0.01 145);
+
+  --surface:        oklch(99% 0 0);
+  --surface-raised: oklch(99.5% 0 0);
+  --bg-page:        oklch(97.5% 0.004 145);
+  --border-subtle:  oklch(91% 0.008 145);
+  --border:         oklch(86% 0.01 145);
+
+  --font-serif:  Georgia, 'Times New Roman', serif;   /* → Instrument Serif */
+  --font-sans:   -apple-system, 'Helvetica Neue', sans-serif; /* → Plus Jakarta Sans */
+  --font-mono:   'Courier New', monospace;            /* → JetBrains Mono */
+
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+
+  --shadow-card:   0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+  --shadow-hover:  0 2px 8px rgba(0,0,0,.06), 0 12px 32px rgba(0,0,0,.09);
+  --shadow-sel:    0 0 0 2px var(--green), 0 4px 20px rgba(0,0,0,.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: #0a0a0a;
+  color: #fff;
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════════════
+   OUTER SHELL (page chrome / annotation)
+══════════════════════════════════════════ */
+.page-label {
+  padding: 40px 48px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.page-label .tag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: oklch(62% 0.18 145 / .12);
+  color: oklch(72% 0.18 145);
+  border: 1px solid oklch(62% 0.18 145 / .2);
+  border-radius: 4px;
+  padding: 3px 10px;
+}
+.page-label h1 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 20px;
+  font-weight: 400;
+  color: rgba(255,255,255,.7);
+}
+.page-label .note {
+  margin-left: auto;
+  font-size: 12px;
+  color: rgba(255,255,255,.25);
+  max-width: 360px;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.mockup-wrap {
+  padding: 0 48px 80px;
+}
+
+.browser-frame {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.4),
+    0 40px 120px rgba(0,0,0,.6),
+    0 8px 32px rgba(0,0,0,.4);
+}
+
+.browser-chrome {
+  background: #1c1c1e;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.dots { display: flex; gap: 6px; }
+.dot  { width: 12px; height: 12px; border-radius: 50%; }
+.dot-r { background: #ff5f57; }
+.dot-y { background: #ffbd2e; }
+.dot-g { background: #28ca41; }
+.url-bar {
+  flex: 1; max-width: 380px; margin: 0 auto;
+  background: rgba(255,255,255,.07);
+  border-radius: 7px;
+  padding: 5px 14px;
+  font-size: 12px;
+  color: rgba(255,255,255,.35);
+  font-family: var(--font-mono);
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════
+   PRODUCT UI
+══════════════════════════════════════════ */
+.product {
+  background: var(--ink);   /* dark nav + header */
+  display: flex;
+  flex-direction: column;
+  height: 680px;
+  overflow: hidden;
+}
+
+/* ── NAV ── */
+.nav {
+  background: oklch(10% 0.01 145);
+  border-bottom: 1px solid oklch(18% 0.01 145);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  height: 56px;
+  flex-shrink: 0;
+  gap: 32px;
+  position: relative;
+  z-index: 10;
+}
+
+.logo {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--green);
+  letter-spacing: -.01em;
+  flex-shrink: 0;
+}
+
+.nav-divider {
+  width: 1px; height: 20px;
+  background: oklch(22% 0.01 145);
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+}
+.nav-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: oklch(55% 0.01 145);
+  cursor: pointer;
+  transition: color .15s;
+  white-space: nowrap;
+}
+.nav-link:hover { color: oklch(80% 0.01 145); }
+.nav-link.active { color: oklch(90% 0.01 145); }
+
+.nav-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.btn-ghost {
+  font-size: 13px;
+  font-weight: 500;
+  color: oklch(65% 0.01 145);
+  background: transparent;
+  border: none;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.btn-primary {
+  font-size: 13px;
+  font-weight: 600;
+  color: oklch(10% 0.01 145);
+  background: var(--green);
+  border: none;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  letter-spacing: -.01em;
+}
+.btn-primary:hover { background: var(--green-hover); }
+
+/* ── HERO ── */
+.hero {
+  background:
+    radial-gradient(ellipse 80% 100% at 60% 120%, oklch(42% 0.18 145 / .35) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 90% -20%, oklch(62% 0.18 145 / .12) 0%, transparent 50%),
+    oklch(10% 0.01 145);
+  padding: 36px 40px 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* arc motif */
+.hero::before {
+  content: '';
+  position: absolute;
+  right: -40px; bottom: -80px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  border: 1px solid oklch(62% 0.18 145 / .12);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  right: 30px; bottom: -60px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  border: 1px solid oklch(62% 0.18 145 / .08);
+  pointer-events: none;
+}
+
+.hero-copy { flex: 1; }
+
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 12px;
+  opacity: .9;
+}
+
+.hero-headline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: oklch(97% 0 0);
+  letter-spacing: -.02em;
+  margin-bottom: 16px;
+}
+.hero-headline em {
+  color: var(--green);
+  font-style: italic;
+}
+
+.hero-sub {
+  font-size: 14px;
+  line-height: 1.6;
+  color: oklch(58% 0.01 145);
+  max-width: 420px;
+}
+
+.hero-search {
+  width: 380px;
+  flex-shrink: 0;
+}
+
+.search-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: oklch(45% 0.01 145);
+  margin-bottom: 8px;
+}
+
+.search-field {
+  background: oklch(15% 0.01 145);
+  border: 1px solid oklch(25% 0.01 145);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 3px 3px 14px;
+  margin-bottom: 10px;
+  transition: border-color .15s;
+}
+.search-field:focus-within {
+  border-color: oklch(42% 0.16 145);
+}
+.search-icon {
+  font-size: 14px;
+  opacity: .4;
+  flex-shrink: 0;
+}
+.search-text {
+  flex: 1;
+  font-size: 14px;
+  color: oklch(55% 0.01 145);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.search-submit {
+  background: var(--green);
+  color: oklch(10% 0.01 145);
+  border: none;
+  border-radius: 7px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: -.01em;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.pill {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid oklch(28% 0.01 145);
+  color: oklch(55% 0.01 145);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.pill:hover { border-color: oklch(40% 0.01 145); color: oklch(75% 0.01 145); }
+.pill.active {
+  background: oklch(62% 0.18 145 / .15);
+  border-color: oklch(62% 0.18 145 / .4);
+  color: var(--green-mid);
+}
+.pill .dot-badge {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: 4px;
+  vertical-align: middle;
+  position: relative; top: -1px;
+}
+
+/* ── MAIN SPLIT ── */
+.main-split {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── LIST PANEL ── */
+.list-panel {
+  background: var(--bg-page);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.list-toolbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.list-count {
+  font-size: 13px;
+  color: var(--ink-secondary);
+}
+.list-count strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-tertiary);
+  cursor: pointer;
+}
+.sort-control span {
+  color: var(--ink-secondary);
+  font-weight: 500;
+}
+
+.card-scroll {
+  overflow-y: auto;
+  flex: 1;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── INSTRUCTOR CARD ── */
+.icard {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow .2s, border-color .2s, transform .15s;
+}
+.icard:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--border);
+  transform: translateY(-1px);
+}
+.icard.selected {
+  box-shadow: var(--shadow-sel);
+  border-color: var(--green);
+}
+
+/* photo strip */
+.card-photos {
+  height: 88px;
+  display: grid;
+  grid-template-columns: 1fr 96px;
+  gap: 2px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+.photo-instructor {
+  background: linear-gradient(135deg,
+    oklch(88% 0.04 145),
+    oklch(82% 0.06 160)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.photo-instructor .photo-label {
+  position: absolute;
+  bottom: 6px; left: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: oklch(35% 0.08 145);
+  background: oklch(95% 0.04 145 / .85);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.photo-car {
+  background: linear-gradient(135deg,
+    oklch(90% 0.01 220),
+    oklch(84% 0.02 200)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.photo-car .photo-label {
+  position: absolute;
+  bottom: 6px; right: 6px;
+  font-size: 9px;
+  font-weight: 600;
+  color: oklch(40% 0.01 220);
+  background: oklch(94% 0.01 220 / .85);
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.photo-person-icon { font-size: 32px; opacity: .5; }
+.photo-car-icon    { font-size: 28px; opacity: .5; }
+
+/* card body */
+.card-body {
+  padding: 14px 16px 12px;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.badge-verified {
+  background: var(--green-subtle);
+  color: var(--green-dark);
+  border: 1px solid oklch(85% 0.06 145);
+}
+.badge-insurance {
+  background: oklch(94% 0.03 240);
+  color: oklch(38% 0.14 240);
+  border: 1px solid oklch(84% 0.06 240);
+}
+.badge-new {
+  background: oklch(95% 0.05 75);
+  color: oklch(42% 0.14 75);
+  border: 1px solid oklch(86% 0.08 75);
+}
+
+.card-price {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -.02em;
+  white-space: nowrap;
+}
+.card-price sub {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-tertiary);
+  vertical-align: baseline;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: var(--ink-tertiary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.meta-sep {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* aprovômetro component */
+.aprovometro {
+  background: var(--bg-page);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  margin-bottom: 10px;
+}
+.aprovo-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+.aprovo-wordmark {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--green-dark);
+}
+.aprovo-sample {
+  font-size: 10px;
+  color: var(--ink-tertiary);
+  font-family: var(--font-mono);
+}
+.aprovo-num-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.aprovo-num {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+.aprovo-num.warn { color: oklch(65% 0.15 50); }
+.aprovo-unit {
+  font-size: 12px;
+  color: var(--ink-tertiary);
+}
+.aprovo-track {
+  height: 5px;
+  background: oklch(90% 0.02 145);
+  border-radius: 3px;
+  overflow: visible;
+  position: relative;
+}
+.aprovo-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--green);
+  position: relative;
+}
+.aprovo-fill::after {
+  content: '';
+  position: absolute;
+  right: -1px; top: -2px;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--green);
+}
+.aprovo-fill.warn { background: oklch(65% 0.15 50); }
+.aprovo-fill.warn::after {
+  background: oklch(65% 0.15 50);
+  box-shadow: 0 0 0 1px oklch(65% 0.15 50);
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+.stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+.star-val {
+  color: oklch(42% 0.15 75);
+  font-size: 11px;
+}
+.star-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.star-count {
+  font-size: 11px;
+  color: var(--ink-tertiary);
+}
+.btn-view {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green-dark);
+  background: var(--green-subtle);
+  border: 1px solid oklch(88% 0.06 145);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-view:hover {
+  background: oklch(90% 0.07 145);
+  border-color: oklch(82% 0.09 145);
+}
+
+/* ── MAP PANEL ── */
+.map-panel {
+  position: relative;
+  background: oklch(91% 0.015 155);
+  overflow: hidden;
+}
+
+.map-base {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(oklch(88% 0.02 150 / .5) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(88% 0.02 150 / .5) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-color: oklch(91% 0.015 155);
+}
+
+.map-road {
+  position: absolute;
+  background: oklch(98% 0 0 / .75);
+  border-left: 1px solid oklch(85% 0.01 145 / .4);
+  border-right: 1px solid oklch(85% 0.01 145 / .4);
+}
+.road-h { height: 9px; left: 0; right: 0; }
+.road-v { width: 9px; top: 0; bottom: 0; }
+.road-main {
+  background: oklch(98% 0 0 / .85);
+}
+.road-h.main { height: 14px; }
+.road-v.main { width: 14px; }
+
+/* pins */
+.map-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+  z-index: 2;
+}
+.pin {
+  background: var(--green);
+  border-radius: 20px;
+  padding: 5px 11px;
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: #fff;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px oklch(62% 0.18 145 / .4);
+  position: relative;
+  letter-spacing: -.02em;
+  border: 1.5px solid oklch(55% 0.18 145);
+  transition: transform .15s, box-shadow .15s;
+}
+.pin:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px oklch(62% 0.18 145 / .5);
+}
+.pin::after {
+  content: '';
+  position: absolute;
+  bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: oklch(55% 0.18 145);
+  border-bottom: none;
+}
+.pin.amber {
+  background: oklch(70% 0.14 75);
+  border-color: oklch(62% 0.14 75);
+  box-shadow: 0 2px 10px oklch(70% 0.14 75 / .35);
+}
+.pin.amber::after { border-top-color: oklch(62% 0.14 75); }
+.pin.selected {
+  background: var(--ink);
+  border-color: oklch(20% 0.01 145);
+  box-shadow: 0 0 0 3px var(--green), 0 4px 16px rgba(0,0,0,.3);
+  z-index: 5;
+}
+.pin.selected::after { border-top-color: oklch(20% 0.01 145); }
+
+/* map controls */
+.map-overlay-top {
+  position: absolute;
+  top: 14px; left: 14px; right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+}
+.map-search-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--ink-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+.map-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 7px 13px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  white-space: nowrap;
+}
+.map-chip.active {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+.map-controls-br {
+  position: absolute;
+  bottom: 14px; right: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 3;
+}
+.map-btn {
+  width: 34px; height: 34px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  font-weight: 300;
+}
+
+.map-toggle {
+  position: absolute;
+  bottom: 14px; left: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+.map-toggle span.active { color: var(--ink); }
+
+/* bottom sheet preview */
+.bottom-sheet-hint {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border-subtle);
+  border-radius: 16px 16px 0 0;
+  padding: 12px 20px;
+  box-shadow: 0 -4px 24px rgba(0,0,0,.08);
+  z-index: 4;
+  transform: translateY(calc(100% - 60px));
+}
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 12px;
+}
+.sheet-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sheet-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, oklch(88% 0.04 145), oklch(82% 0.06 160));
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sheet-info { flex: 1; }
+.sheet-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+.sheet-sub  { font-size: 12px; color: var(--ink-tertiary); }
+.sheet-aprovo {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--green);
+}
+.sheet-aprovo span {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: var(--ink-tertiary);
+  display: block;
+  text-align: right;
+}
+.sheet-cta {
+  background: var(--green);
+  color: oklch(10% 0.01 145);
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: -.01em;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   ANNOTATION STRIP
+══════════════════════════════════════════ */
+.annotation-strip {
+  padding: 40px 48px 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.annotation {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.annotation-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--green-mid);
+  margin-bottom: 8px;
+}
+.annotation-text {
+  font-size: 13px;
+  color: rgba(255,255,255,.5);
+  line-height: 1.55;
+}
+.annotation-text strong { color: rgba(255,255,255,.8); font-weight: 500; }
+
+/* ══════════════════════════════════════════
+   DELTA TABLE (changes from D4 original)
+══════════════════════════════════════════ */
+.delta {
+  padding: 40px 48px 80px;
+}
+.delta h2 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 400;
+  color: rgba(255,255,255,.6);
+  margin-bottom: 20px;
+}
+.delta table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.delta th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.25);
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.delta td {
+  padding: 13px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  color: rgba(255,255,255,.55);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.delta tr:hover td { background: rgba(255,255,255,.015); }
+.delta .area { color: rgba(255,255,255,.8); font-weight: 500; }
+.delta .was { color: rgba(255,90,90,.6); }
+.delta .now { color: oklch(72% 0.18 145); }
+</style>
+</head>
+<body>
+
+<!-- PAGE LABEL -->
+<div class="page-label">
+  <div class="tag">Direção 04 — Refinada</div>
+  <h1>Verde Dominante · Edição Sofisticada</h1>
+  <div class="note">Mesma identidade da D4 original — green como âncora, Instrument Serif italic editorial — com execução mais precisa: tipografia maior, cards com área de foto, Aprovômetro como componente, espaçamento deliberado.</div>
+</div>
+
+<!-- ANNOTATIONS -->
+<div class="annotation-strip">
+  <div class="annotation">
+    <div class="annotation-label">Headline</div>
+    <div class="annotation-text">Instrument Serif italic <strong>40px</strong> — editorial, não decorativo. Contraste com sub-título sem-serif leve.</div>
+  </div>
+  <div class="annotation">
+    <div class="annotation-label">Hero</div>
+    <div class="annotation-text">Dark background com <strong>radial gradient verde</strong> sutil e arco-motif como texture. Verde não grita — ilumina.</div>
+  </div>
+  <div class="annotation">
+    <div class="annotation-label">Cards</div>
+    <div class="annotation-text">Área de foto <strong>instrutor + carro</strong> em strip de 88px. Aprovômetro como componente autônomo com gauge track.</div>
+  </div>
+  <div class="annotation">
+    <div class="annotation-label">Aprovômetro</div>
+    <div class="annotation-text">Número em <strong>JetBrains Mono 22px</strong> com track de 5px e dot handle. Leitura imediata sem explicação.</div>
+  </div>
+</div>
+
+<!-- MOCKUP -->
+<div class="mockup-wrap">
+  <div class="browser-frame">
+    <div class="browser-chrome">
+      <div class="dots">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+      </div>
+      <div class="url-bar">vialivre.com.br/instrutores</div>
+    </div>
+
+    <div class="product">
+
+      <!-- NAV -->
+      <nav class="nav">
+        <div class="logo">ViaLivre</div>
+        <div class="nav-divider"></div>
+        <div class="nav-links">
+          <div class="nav-link active">Explorar</div>
+          <div class="nav-link">Como funciona</div>
+          <div class="nav-link">Para instrutores</div>
+        </div>
+        <div class="nav-end">
+          <button class="btn-ghost">Entrar</button>
+          <button class="btn-primary">Criar conta grátis</button>
+        </div>
+      </nav>
+
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="hero-eyebrow">Nova lei CNH · Instrutor autônomo</div>
+          <div class="hero-headline">
+            Sua CNH.<br>
+            Seu instrutor.<br>
+            <em>Sua escolha.</em>
+          </div>
+          <div class="hero-sub">
+            Compare Aprovômetros, avaliações e preços —<br>antes de pagar um centavo.
+          </div>
+        </div>
+
+        <div class="hero-search">
+          <div class="search-label">Onde você quer praticar?</div>
+          <div class="search-field">
+            <span class="search-icon">📍</span>
+            <span class="search-text">Bairro ou cidade…</span>
+            <button class="search-submit">Encontrar instrutores</button>
+          </div>
+          <div class="filter-pills">
+            <div class="pill active">Auto</div>
+            <div class="pill">Moto</div>
+            <div class="pill active"><span class="dot-badge"></span>Com seguro</div>
+            <div class="pill">Duplo comando</div>
+            <div class="pill">Fim de semana</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN SPLIT -->
+      <div class="main-split">
+
+        <!-- LIST -->
+        <div class="list-panel">
+          <div class="list-toolbar">
+            <div class="list-count"><strong>34</strong> instrutores · Vila Madalena</div>
+            <div class="sort-control">
+              Ordenar por <span>Melhor Aprovômetro ↓</span>
+            </div>
+          </div>
+
+          <div class="card-scroll">
+
+            <!-- Card 1 — Selected -->
+            <div class="icard selected">
+              <div class="card-photos">
+                <div class="photo-instructor">
+                  <span class="photo-person-icon">👨‍🏫</span>
+                  <div class="photo-label">Instrutor</div>
+                </div>
+                <div class="photo-car">
+                  <span class="photo-car-icon">🚗</span>
+                  <div class="photo-label">Veículo</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="card-header">
+                  <div>
+                    <div class="card-name-row">
+                      <span class="card-name">Carlos Eduardo</span>
+                      <span class="badge badge-verified">✓ DETRAN</span>
+                      <span class="badge badge-insurance">🛡 Seguro</span>
+                    </div>
+                  </div>
+                  <div class="card-price">R$ 110<sub>/aula</sub></div>
+                </div>
+                <div class="card-meta">
+                  <span>Auto</span>
+                  <span class="meta-sep"></span>
+                  <span>Vila Madalena</span>
+                  <span class="meta-sep"></span>
+                  <span>1,2 km</span>
+                </div>
+                <div class="aprovometro">
+                  <div class="aprovo-header">
+                    <span class="aprovo-wordmark">Aprovômetro</span>
+                    <span class="aprovo-sample">47 alunos</span>
+                  </div>
+                  <div class="aprovo-num-row">
+                    <span class="aprovo-num">5,8</span>
+                    <span class="aprovo-unit">aulas em média até aprovação</span>
+                  </div>
+                  <div class="aprovo-track">
+                    <div class="aprovo-fill" style="width: 82%"></div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <div class="stars">
+                    <span class="star-val">★★★★★</span>
+                    <span class="star-num">4,9</span>
+                    <span class="star-count">(47 avaliações)</span>
+                  </div>
+                  <button class="btn-view">Ver perfil</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="icard">
+              <div class="card-photos">
+                <div class="photo-instructor">
+                  <span class="photo-person-icon">👩‍🏫</span>
+                  <div class="photo-label">Instrutora</div>
+                </div>
+                <div class="photo-car">
+                  <span class="photo-car-icon">🚙</span>
+                  <div class="photo-label">Veículo</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="card-header">
+                  <div>
+                    <div class="card-name-row">
+                      <span class="card-name">Fernanda Lima</span>
+                      <span class="badge badge-verified">✓ DETRAN</span>
+                    </div>
+                  </div>
+                  <div class="card-price">R$ 95<sub>/aula</sub></div>
+                </div>
+                <div class="card-meta">
+                  <span>Auto</span>
+                  <span class="meta-sep"></span>
+                  <span>Pinheiros</span>
+                  <span class="meta-sep"></span>
+                  <span>2,1 km</span>
+                </div>
+                <div class="aprovometro">
+                  <div class="aprovo-header">
+                    <span class="aprovo-wordmark">Aprovômetro</span>
+                    <span class="aprovo-sample">31 alunos</span>
+                  </div>
+                  <div class="aprovo-num-row">
+                    <span class="aprovo-num">7,1</span>
+                    <span class="aprovo-unit">aulas em média até aprovação</span>
+                  </div>
+                  <div class="aprovo-track">
+                    <div class="aprovo-fill" style="width: 63%"></div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <div class="stars">
+                    <span class="star-val">★★★★☆</span>
+                    <span class="star-num">4,7</span>
+                    <span class="star-count">(31 avaliações)</span>
+                  </div>
+                  <button class="btn-view">Ver perfil</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3 — top performer -->
+            <div class="icard">
+              <div class="card-photos">
+                <div class="photo-instructor" style="background:linear-gradient(135deg,oklch(92%,0.04,145),oklch(86%,0.07,160))">
+                  <span class="photo-person-icon">👨</span>
+                  <div class="photo-label">Instrutor</div>
+                </div>
+                <div class="photo-car">
+                  <span class="photo-car-icon">🚕</span>
+                  <div class="photo-label">Veículo</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="card-header">
+                  <div>
+                    <div class="card-name-row">
+                      <span class="card-name">Marcos Silva</span>
+                      <span class="badge badge-verified">✓ DETRAN</span>
+                      <span class="badge badge-insurance">🛡 Seguro</span>
+                    </div>
+                  </div>
+                  <div class="card-price">R$ 130<sub>/aula</sub></div>
+                </div>
+                <div class="card-meta">
+                  <span>Auto</span>
+                  <span class="meta-sep"></span>
+                  <span>Lapa</span>
+                  <span class="meta-sep"></span>
+                  <span>3,4 km</span>
+                </div>
+                <div class="aprovometro">
+                  <div class="aprovo-header">
+                    <span class="aprovo-wordmark">Aprovômetro</span>
+                    <span class="aprovo-sample">89 alunos</span>
+                  </div>
+                  <div class="aprovo-num-row">
+                    <span class="aprovo-num" style="color:oklch(52% 0.18 145)">4,2</span>
+                    <span class="aprovo-unit">aulas em média até aprovação</span>
+                  </div>
+                  <div class="aprovo-track">
+                    <div class="aprovo-fill" style="width: 91%; background: oklch(52% 0.18 145)"></div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <div class="stars">
+                    <span class="star-val">★★★★★</span>
+                    <span class="star-num">4,95</span>
+                    <span class="star-count">(89 avaliações)</span>
+                  </div>
+                  <button class="btn-view">Ver perfil</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- MAP -->
+        <div class="map-panel">
+          <div class="map-base"></div>
+
+          <!-- Roads -->
+          <div class="map-road road-h" style="top: 33%"></div>
+          <div class="map-road road-h main" style="top: 55%"></div>
+          <div class="map-road road-h" style="top: 73%"></div>
+          <div class="map-road road-v" style="left: 22%"></div>
+          <div class="map-road road-v main" style="left: 48%"></div>
+          <div class="map-road road-v" style="left: 70%"></div>
+          <div class="map-road road-v" style="left: 85%"></div>
+
+          <!-- Pins -->
+          <div class="map-pin" style="left: 38%; top: 48%">
+            <div class="pin selected">Carlos · 5,8</div>
+          </div>
+          <div class="map-pin" style="left: 57%; top: 60%">
+            <div class="pin">Fernanda · 7,1</div>
+          </div>
+          <div class="map-pin" style="left: 28%; top: 67%">
+            <div class="pin">Marcos · 4,2</div>
+          </div>
+          <div class="map-pin" style="left: 67%; top: 38%">
+            <div class="pin amber">Paulo · 8,5</div>
+          </div>
+          <div class="map-pin" style="left: 50%; top: 78%">
+            <div class="pin">Ana · 6,3</div>
+          </div>
+          <div class="map-pin" style="left: 79%; top: 52%">
+            <div class="pin">Renata · 5,1</div>
+          </div>
+
+          <!-- Overlay top -->
+          <div class="map-overlay-top">
+            <div class="map-search-pill">
+              <span style="opacity:.5">📍</span>
+              <span>Vila Madalena, São Paulo</span>
+            </div>
+            <div class="map-chip active">Lista</div>
+            <div class="map-chip">Mapa</div>
+          </div>
+
+          <!-- Bottom sheet hint -->
+          <div class="bottom-sheet-hint">
+            <div class="sheet-handle"></div>
+            <div class="sheet-preview">
+              <div class="sheet-avatar">👨‍🏫</div>
+              <div class="sheet-info">
+                <div class="sheet-name">Carlos Eduardo</div>
+                <div class="sheet-sub">Vila Madalena · R$ 110/aula · ✓ DETRAN · 🛡 Seguro</div>
+              </div>
+              <div class="sheet-aprovo">
+                5,8
+                <span>Aprovômetro</span>
+              </div>
+              <button class="sheet-cta">Agendar aula</button>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="map-controls-br">
+            <div class="map-btn">+</div>
+            <div class="map-btn">−</div>
+          </div>
+          <div class="map-toggle">
+            <span class="active">Lista</span>
+            <span style="color:rgba(0,0,0,.25)">Mapa</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELTA TABLE -->
+<div class="delta">
+  <h2>O que mudou em relação à Direção 4 original</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Área</th>
+        <th>Antes (D4 original)</th>
+        <th>Agora (refinada)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="area">Hero background</td>
+        <td class="was">Gradiente verde sólido — saturado, amador</td>
+        <td class="now">Dark background oklch(10%) com radial gradient verde sutil + arco-motif — presença sem saturação</td>
+      </tr>
+      <tr>
+        <td class="area">Headline tipografia</td>
+        <td class="was">28px — leve, sem força</td>
+        <td class="now">40px Instrument Serif italic em 3 linhas, letter-spacing -.02em — editorial, com peso</td>
+      </tr>
+      <tr>
+        <td class="area">Cards — foto</td>
+        <td class="was">Emoji de avatar + carro — placeholder infantil</td>
+        <td class="now">Strip de 88px com duas áreas de foto (instructor + vehicle) com label tipográfico — estrutura real de imagem</td>
+      </tr>
+      <tr>
+        <td class="area">Aprovômetro</td>
+        <td class="was">Label inline com barra simples — sem componente</td>
+        <td class="now">Componente autônomo: wordmark, sample size, número JetBrains Mono 22px, track 5px com dot handle — leitura imediata</td>
+      </tr>
+      <tr>
+        <td class="area">Preço no card</td>
+        <td class="was">Fundo do rodapé com flexbox simples</td>
+        <td class="now">JetBrains Mono alinhado à direita no header do card — hierarquia clara antes do scroll</td>
+      </tr>
+      <tr>
+        <td class="area">Pins no mapa</td>
+        <td class="was">Fundo sólido sem refinamento</td>
+        <td class="now">Border 1.5px mais escura que fill, box-shadow colorida por hue, dot handle no selected — sistema visual coeso</td>
+      </tr>
+      <tr>
+        <td class="area">Bottom sheet</td>
+        <td class="was">Ausente</td>
+        <td class="now">Preview em 60px com handle, dados do instrutor + Aprovômetro + CTA primário — padrão mobile-ready</td>
+      </tr>
+      <tr>
+        <td class="area">Badges</td>
+        <td class="was">Emoji inline sem sistema</td>
+        <td class="now">Badge component com background tonal + border sutil — verified (green), insurance (blue), new (amber)</td>
+      </tr>
+      <tr>
+        <td class="area">Nav bar</td>
+        <td class="was">Fundo oklch(15%) sem refinamento</td>
+        <td class="now">Nav-links com estados active/hover, btn-ghost sutil + btn-primary com letter-spacing — hierarquia de ação clara</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

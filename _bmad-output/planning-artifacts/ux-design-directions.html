@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViaLivre — Design Directions</title>
+<style>
+  /* ── Brand Tokens ── */
+  :root {
+    --primary:         oklch(62% 0.18 145);
+    --primary-hover:   oklch(55% 0.18 145);
+    --primary-subtle:  oklch(95% 0.05 145);
+    --primary-fg:      oklch(99% 0 0);
+    --surface:         oklch(99% 0 0);
+    --bg:              oklch(97% 0.005 145);
+    --fg:              oklch(18% 0.01 145);
+    --muted:           oklch(55% 0.01 145);
+    --border:          oklch(88% 0.01 145);
+    --warning:         oklch(72% 0.15 85);
+    --destructive:     oklch(55% 0.20 27);
+
+    --font-display: 'Georgia', serif;
+    --font-body:    system-ui, -apple-system, sans-serif;
+    --font-mono:    'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: #0f0f0f;
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  /* ── Nav ── */
+  .site-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(15,15,15,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 12px 32px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .site-nav h1 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--primary);
+    margin-right: auto;
+  }
+  .site-nav a {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.15s;
+  }
+  .site-nav a:hover, .site-nav a.active { color: #fff; }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 120px 32px 60px;
+    text-align: center;
+  }
+  .hero h2 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(36px, 5vw, 56px);
+    color: var(--primary);
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 16px;
+    color: rgba(255,255,255,0.55);
+    max-width: 560px;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+  }
+  .eval-grid {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+  }
+  .eval-tag {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ── Direction sections ── */
+  .direction {
+    padding: 80px 32px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .direction-header {
+    max-width: 1200px;
+    margin: 0 auto 40px;
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+  }
+  .direction-number {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--primary);
+    background: rgba(var(--primary-r,80), 200, 100, 0.08);
+    border: 1px solid oklch(62% 0.18 145 / 0.2);
+    border-radius: 4px;
+    padding: 4px 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .direction-meta { flex: 1; }
+  .direction-meta h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .direction-meta p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+    max-width: 600px;
+  }
+  .direction-tags {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .tag-green  { background: oklch(62% 0.18 145 / 0.15); color: oklch(72% 0.18 145); border: 1px solid oklch(62% 0.18 145 / 0.2); }
+  .tag-amber  { background: oklch(72% 0.15 85 / 0.15);  color: oklch(78% 0.15 85);  border: 1px solid oklch(72% 0.15 85 / 0.2); }
+  .tag-blue   { background: oklch(62% 0.18 240 / 0.15); color: oklch(72% 0.18 240); border: 1px solid oklch(62% 0.18 240 / 0.2); }
+  .tag-gray   { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.1); }
+
+  .mockup-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+  .browser-chrome {
+    background: #1e1e1e;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .browser-dots { display: flex; gap: 6px; }
+  .browser-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+  }
+  .dot-red  { background: #ff5f57; }
+  .dot-yel  { background: #ffbd2e; }
+  .dot-grn  { background: #28ca41; }
+  .browser-url {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    font-family: var(--font-mono);
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  /* ── DIRECTION 1: Catálogo Aberto ── */
+  .d1 { background: #fff; color: var(--fg); }
+  .d1 .top-bar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .d1 .logo {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--primary);
+  }
+  .d1 .search-bar {
+    flex: 1;
+    max-width: 400px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .d1 .nav-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .btn-outline {
+    border: 1px solid var(--border);
+    background: transparent;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--fg);
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: var(--primary-fg);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .d1 .layout-split {
+    display: grid;
+    grid-template-columns: 280px 1fr 1fr;
+    height: 520px;
+  }
+  .d1 .filters-panel {
+    border-right: 1px solid var(--border);
+    padding: 16px;
+    overflow-y: auto;
+    background: #fff;
+  }
+  .d1 .filters-panel h4 {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .filter-group { margin-bottom: 20px; }
+  .filter-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg);
+    margin-bottom: 8px;
+  }
+  .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--fg);
+    cursor: pointer;
+  }
+  .chip.active {
+    background: var(--primary-subtle);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 500;
+  }
+  .price-range {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    color: var(--fg);
+  }
+  .price-range .range-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 10px 0;
+    position: relative;
+  }
+  .price-range .range-fill {
+    position: absolute;
+    left: 10%; right: 30%;
+    height: 100%;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+  .price-vals { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+
+  .d1 .list-panel {
+    border-right: 1px solid var(--border);
+    padding: 12px;
+    overflow-y: auto;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .d1 .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 4px 8px;
+  }
+  .d1 .list-header span {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .d1 .list-header select {
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    background: #fff;
+    color: var(--fg);
+  }
+
+  .instructor-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 14px;
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .instructor-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border-color: var(--primary);
+  }
+  .instructor-card.selected {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px oklch(62% 0.18 145 / 0.15);
+  }
+  .card-top { display: flex; gap: 12px; align-items: flex-start; }
+  .avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-subtle), oklch(85% 0.08 145));
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .car-thumb {
+    width: 64px; height: 44px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, oklch(92% 0.02 200), oklch(88% 0.02 220));
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .card-info { flex: 1; min-width: 0; }
+  .card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+  }
+  .badge-verified {
+    font-size: 10px;
+    background: var(--primary-subtle);
+    color: var(--primary);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-weight: 600;
+  }
+  .badge-insurance {
+    font-size: 10px;
+    background: oklch(95% 0.05 240);
+    color: oklch(45% 0.18 240);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-weight: 600;
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .aprovometro {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .aprovo-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .aprovo-value {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary);
+  }
+  .aprovo-unit {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .aprovo-bar {
+    flex: 1;
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .aprovo-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--primary);
+  }
+  .card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .card-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--fg);
+  }
+  .card-price span {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .card-stars {
+    font-size: 12px;
+    color: oklch(72% 0.15 85);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .card-stars strong { color: var(--fg); font-size: 13px; }
+  .card-dist {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .d1 .map-panel {
+    position: relative;
+    background: oklch(92% 0.01 180);
+    overflow: hidden;
+  }
+  .map-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(rgba(200,230,210,0.3) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,230,210,0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-color: oklch(93% 0.02 160);
+  }
+  .map-road-h {
+    position: absolute;
+    background: rgba(255,255,255,0.7);
+    height: 6px;
+    left: 0; right: 0;
+  }
+  .map-road-v {
+    position: absolute;
+    background: rgba(255,255,255,0.7);
+    width: 6px;
+    top: 0; bottom: 0;
+  }
+  .map-pin {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    cursor: pointer;
+  }
+  .pin-bubble {
+    background: var(--primary);
+    color: #fff;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .pin-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -5px; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--primary);
+    border-bottom: none;
+  }
+  .pin-bubble.amber { background: oklch(72% 0.15 85); }
+  .pin-bubble.amber::after { border-top-color: oklch(72% 0.15 85); }
+  .pin-bubble.selected {
+    background: var(--fg);
+    box-shadow: 0 0 0 3px var(--primary), 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .pin-bubble.selected::after { border-top-color: var(--fg); }
+  .map-search-bar {
+    position: absolute;
+    top: 12px; left: 12px; right: 12px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+  .map-toggle {
+    position: absolute;
+    bottom: 12px; right: 12px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    cursor: pointer;
+    color: var(--fg);
+  }
+  .map-zoom {
+    position: absolute;
+    bottom: 12px; left: 12px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .map-zoom button {
+    display: block;
+    width: 32px; height: 32px;
+    border: none; background: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+    line-height: 32px;
+    text-align: center;
+  }
+  .map-zoom button:last-child { border-bottom: none; }
+
+  /* ── DIRECTION 2: Profissional Compacto ── */
+  .d2 {
+    background: oklch(20% 0.01 145);
+    color: oklch(92% 0.01 145);
+    font-family: var(--font-body);
+  }
+  .d2 .top-bar {
+    background: oklch(15% 0.01 145);
+    border-bottom: 1px solid oklch(28% 0.01 145);
+    padding: 0 20px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .d2 .logo {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 20px;
+    color: var(--primary);
+  }
+  .d2 .search-bar {
+    flex: 1;
+    max-width: 360px;
+    background: oklch(25% 0.01 145);
+    border: 1px solid oklch(32% 0.01 145);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: oklch(65% 0.01 145);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .d2 .nav-tabs {
+    display: flex;
+    gap: 2px;
+    background: oklch(25% 0.01 145);
+    border-radius: 6px;
+    padding: 3px;
+    margin-left: auto;
+  }
+  .d2 .nav-tab {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    color: oklch(60% 0.01 145);
+    cursor: pointer;
+  }
+  .d2 .nav-tab.active {
+    background: var(--primary);
+    color: #fff;
+  }
+  .d2 .layout-split {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    height: 524px;
+  }
+  .d2 .map-panel {
+    position: relative;
+    background: oklch(18% 0.02 160);
+    overflow: hidden;
+  }
+  .d2 .map-bg {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(oklch(22% 0.02 160 / 0.6) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(22% 0.02 160 / 0.6) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-color: oklch(18% 0.02 160);
+  }
+  .d2 .map-road-h {
+    position: absolute;
+    background: oklch(30% 0.01 160);
+    height: 5px;
+    left: 0; right: 0;
+  }
+  .d2 .map-road-v {
+    position: absolute;
+    background: oklch(30% 0.01 160);
+    width: 5px;
+    top: 0; bottom: 0;
+  }
+  .d2 .sidebar-panel {
+    border-left: 1px solid oklch(28% 0.01 145);
+    background: oklch(17% 0.01 145);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .d2 .sidebar-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid oklch(24% 0.01 145);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .d2 .sidebar-header span {
+    font-size: 12px;
+    color: oklch(60% 0.01 145);
+  }
+  .d2 .filter-row {
+    padding: 10px 16px;
+    border-bottom: 1px solid oklch(22% 0.01 145);
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .d2 .chip {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid oklch(32% 0.01 145);
+    background: oklch(23% 0.01 145);
+    color: oklch(65% 0.01 145);
+    cursor: pointer;
+  }
+  .d2 .chip.active {
+    background: oklch(62% 0.18 145 / 0.15);
+    border-color: var(--primary);
+    color: oklch(75% 0.18 145);
+  }
+  .d2 .card-list {
+    overflow-y: auto;
+    flex: 1;
+  }
+  .d2 .instructor-card {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid oklch(22% 0.01 145);
+    border-radius: 0;
+    padding: 14px 16px;
+  }
+  .d2 .instructor-card:hover {
+    background: oklch(22% 0.01 145);
+    border-color: oklch(22% 0.01 145);
+    box-shadow: none;
+  }
+  .d2 .instructor-card.selected {
+    background: oklch(62% 0.18 145 / 0.07);
+    border-left: 2px solid var(--primary);
+    box-shadow: none;
+  }
+  .d2 .card-name { color: oklch(92% 0.01 145); font-size: 13px; }
+  .d2 .card-sub { color: oklch(55% 0.01 145); font-size: 11px; }
+  .d2 .card-price { color: oklch(92% 0.01 145); font-size: 14px; }
+  .d2 .card-stars { font-size: 11px; }
+  .d2 .card-dist { color: oklch(55% 0.01 145); }
+  .d2 .aprovo-label { color: oklch(50% 0.01 145); }
+  .d2 .aprovo-value { font-size: 14px; }
+  .d2 .aprovo-bar { background: oklch(28% 0.01 145); }
+  .d2 .card-bottom { border-top-color: oklch(26% 0.01 145); }
+  .d2 .badge-verified {
+    background: oklch(62% 0.18 145 / 0.15);
+    color: oklch(72% 0.18 145);
+  }
+  .d2 .badge-insurance {
+    background: oklch(62% 0.18 240 / 0.12);
+    color: oklch(68% 0.18 240);
+  }
+
+  /* ── DIRECTION 3: Confiança em Primeiro ── */
+  .d3 { background: #fff; color: var(--fg); }
+  .d3 .top-bar {
+    background: var(--primary);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .d3 .logo {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 22px;
+    color: #fff;
+  }
+  .d3 .search-bar {
+    flex: 1;
+    max-width: 400px;
+    background: oklch(55% 0.18 145);
+    border: 1px solid oklch(55% 0.18 145);
+    border-radius: 24px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .d3 .nav-actions { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+  .d3 .btn-outline { border-color: rgba(255,255,255,0.4); color: #fff; }
+  .d3 .trust-bar {
+    background: oklch(97% 0.01 145);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .trust-icon {
+    width: 20px; height: 20px;
+    background: var(--primary-subtle);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .d3 .layout-split {
+    display: grid;
+    grid-template-columns: 260px 1fr 1fr;
+    height: 490px;
+  }
+  .d3 .filters-panel {
+    border-right: 1px solid var(--border);
+    padding: 16px;
+    background: #fff;
+  }
+  .d3 .instructor-card { background: #fff; }
+  .d3 .instructor-card.selected { border-color: var(--primary); }
+  .d3 .list-panel {
+    border-right: 1px solid var(--border);
+    padding: 12px;
+    background: var(--bg);
+    display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+  }
+  .trust-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: oklch(97% 0.03 145);
+    border: 1px solid oklch(90% 0.05 145);
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-top: 8px;
+  }
+  .trust-score-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .trust-score-value {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+  }
+  .trust-score-desc { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+  /* ── DIRECTION 4: Verde Dominante ── */
+  .d4 { background: oklch(97% 0.005 145); color: var(--fg); }
+  .d4 .top-bar {
+    background: oklch(15% 0.01 145);
+    padding: 0 24px;
+    height: 64px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .d4 .logo {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--primary);
+    letter-spacing: -0.01em;
+  }
+  .d4 .hero-bar {
+    background: linear-gradient(135deg, oklch(55% 0.18 145), oklch(65% 0.18 160));
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .d4 .hero-headline {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 28px;
+    color: #fff;
+    flex: 1;
+  }
+  .d4 .hero-search {
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--muted);
+    width: 320px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .d4 .hero-search .btn-primary {
+    background: oklch(15% 0.01 145);
+    border-radius: 6px;
+  }
+  .d4 .layout-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 420px;
+  }
+  .d4 .list-panel {
+    padding: 16px;
+    overflow-y: auto;
+    background: oklch(97% 0.005 145);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .d4 .instructor-card {
+    background: #fff;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 2px 12px oklch(62% 0.18 145 / 0.08);
+  }
+  .d4 .instructor-card:hover {
+    box-shadow: 0 6px 24px oklch(62% 0.18 145 / 0.18);
+    border: 1px solid oklch(62% 0.18 145 / 0.2);
+  }
+  .d4 .instructor-card.selected {
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 0 4px oklch(62% 0.18 145 / 0.1);
+  }
+
+  /* ── DIRECTION 5: Minimal Moderno ── */
+  .d5 { background: #fff; color: var(--fg); }
+  .d5 .top-bar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 64px;
+    display: flex; align-items: center; gap: 32px;
+  }
+  .d5 .logo {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+  .d5 .logo span { color: var(--primary); }
+  .d5 .nav-links {
+    display: flex; gap: 24px; margin-left: 24px;
+  }
+  .d5 .nav-link {
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .d5 .nav-link.active { color: var(--fg); font-weight: 500; }
+  .d5 .search-input {
+    margin-left: auto;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 32px;
+    padding: 8px 20px;
+    font-size: 14px;
+    color: var(--muted);
+    width: 280px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .d5 .layout-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 508px;
+  }
+  .d5 .list-panel {
+    padding: 24px;
+    overflow-y: auto;
+    background: #fff;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .d5 .list-header {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .d5 .list-header h3 { font-size: 15px; font-weight: 600; color: var(--fg); }
+  .d5 .list-header span { font-size: 13px; color: var(--muted); }
+  .d5 .instructor-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.2s;
+  }
+  .d5 .instructor-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  }
+  .d5 .instructor-card.selected {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px oklch(62% 0.18 145 / 0.12);
+  }
+  .d5 .avatar {
+    width: 52px; height: 52px; font-size: 22px;
+  }
+
+  /* ── DIRECTION 6: Data-Driven ── */
+  .d6 { background: oklch(12% 0.01 240); color: oklch(90% 0.01 240); }
+  .d6 .top-bar {
+    background: oklch(10% 0.01 240);
+    border-bottom: 1px solid oklch(20% 0.01 240);
+    padding: 0 24px;
+    height: 52px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .d6 .logo {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 20px;
+    color: oklch(72% 0.18 145);
+  }
+  .d6 .layout-split {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 520px;
+  }
+  .d6 .data-panel {
+    border-right: 1px solid oklch(20% 0.01 240);
+    background: oklch(10% 0.01 240);
+    overflow-y: auto;
+  }
+  .d6 .data-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid oklch(18% 0.01 240);
+  }
+  .d6 .data-header h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: oklch(50% 0.01 240);
+    margin-bottom: 4px;
+  }
+  .d6 .data-count {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-weight: 600;
+    color: oklch(72% 0.18 145);
+  }
+  .d6 .data-count span { font-size: 12px; color: oklch(50% 0.01 240); margin-left: 4px; }
+  .d6 .instructor-row {
+    padding: 14px 20px;
+    border-bottom: 1px solid oklch(16% 0.01 240);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .d6 .instructor-row:hover { background: oklch(16% 0.01 240); }
+  .d6 .instructor-row.selected {
+    background: oklch(72% 0.18 145 / 0.07);
+    border-left: 2px solid oklch(72% 0.18 145);
+  }
+  .d6 .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: oklch(18% 0.01 240);
+    font-size: 14px;
+  }
+  .d6 .row-info { flex: 1; min-width: 0; }
+  .d6 .row-name { font-size: 13px; font-weight: 500; color: oklch(90% 0.01 240); }
+  .d6 .row-sub { font-size: 11px; color: oklch(45% 0.01 240); }
+  .d6 .row-aprovo {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: oklch(72% 0.18 145);
+    text-align: right;
+  }
+  .d6 .row-aprovo span { font-size: 10px; color: oklch(45% 0.01 240); display: block; }
+  .d6 .main-panel {
+    background: oklch(12% 0.01 240);
+    overflow: hidden;
+    position: relative;
+  }
+  .d6 .hero-metric {
+    position: absolute;
+    top: 24px; left: 24px; right: 24px;
+    background: oklch(8% 0.01 240);
+    border: 1px solid oklch(20% 0.01 240);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+  }
+  .metric-block { }
+  .metric-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: oklch(40% 0.01 240); margin-bottom: 6px; }
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 600;
+    color: oklch(72% 0.18 145);
+    line-height: 1;
+  }
+  .metric-value.warn { color: oklch(78% 0.15 85); }
+  .metric-sub { font-size: 11px; color: oklch(45% 0.01 240); margin-top: 4px; }
+  .d6 .map-overlay {
+    position: absolute;
+    top: 148px; left: 24px; right: 24px; bottom: 24px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid oklch(20% 0.01 240);
+  }
+
+  /* ── Summary table ── */
+  .summary {
+    max-width: 1200px;
+    margin: 80px auto;
+    padding: 0 32px;
+  }
+  .summary h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 24px;
+  }
+  .summary table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .summary th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: rgba(255,255,255,0.35);
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .summary td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.7);
+    vertical-align: top;
+  }
+  .summary tr:hover td { background: rgba(255,255,255,0.02); }
+  .summary .dir-name { font-weight: 600; color: #fff; }
+  .strength { color: oklch(72% 0.18 145); }
+  .weakness { color: oklch(65% 0.18 50); }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 32px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* ── Utility ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .icon { font-style: normal; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <h1>ViaLivre — Design Directions</h1>
+  <a href="#d1">01 Catálogo Aberto</a>
+  <a href="#d2">02 Profissional Compacto</a>
+  <a href="#d3">03 Confiança em Primeiro</a>
+  <a href="#d4">04 Verde Dominante</a>
+  <a href="#d5">05 Minimal Moderno</a>
+  <a href="#d6">06 Data-Driven</a>
+  <a href="#summary">Comparativo</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h2>6 Direções de Design</h2>
+  <p>Cada mockup representa uma abordagem visual completa para a tela principal de descoberta da ViaLivre. Todos usam os mesmos tokens do brand book — a diferença está na hierarquia, densidade e personalidade.</p>
+  <div class="eval-grid">
+    <span class="eval-tag">✦ Hierarquia de informação</span>
+    <span class="eval-tag">✦ Densidade e respiro</span>
+    <span class="eval-tag">✦ Aplicação da cor</span>
+    <span class="eval-tag">✦ Alinhamento com a marca</span>
+    <span class="eval-tag">✦ Confiança antes da conversão</span>
+    <span class="eval-tag">✦ Operação do instrutor</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- DIRECTION 1: Catálogo Aberto                        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="direction" id="d1">
+  <div class="direction-header">
+    <div class="direction-number">Direção 01</div>
+    <div class="direction-meta">
+      <h3>Catálogo Aberto</h3>
+      <p>Inspirado no Airbnb: fundo branco, espaçamento generoso, mapa e lista em equilíbrio. Filtros na sidebar esquerda. Cards com foto, Aprovômetro e badges de confiança visíveis sem scroll. O tela "sem decisão" — o aluno explora com liberdade.</p>
+      <div class="direction-tags">
+        <span class="tag tag-green">Confiança alta</span>
+        <span class="tag tag-green">Exploração livre</span>
+        <span class="tag tag-amber">Ocupa mais espaço</span>
+        <span class="tag tag-gray">Referência: Airbnb + QuintoAndar</span>
+      </div>
+    </div>
+  </div>
+  <div class="mockup-container">
+    <div class="browser-chrome">
+      <div class="browser-dots"><div class="browser-dot dot-red"></div><div class="browser-dot dot-yel"></div><div class="browser-dot dot-grn"></div></div>
+      <div class="browser-url">vialivre.com.br/instrutores</div>
+    </div>
+    <div class="d1">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="logo">ViaLivre</div>
+        <div class="search-bar">
+          <span>🔍</span>
+          <span>Buscar por bairro ou cidade…</span>
+        </div>
+        <div class="nav-actions">
+          <button class="btn-outline">Entrar</button>
+          <button class="btn-primary">Cadastrar</button>
+        </div>
+      </div>
+      <!-- Split: Filters | List | Map -->
+      <div class="layout-split">
+
+        <!-- Filters -->
+        <div class="filters-panel">
+          <div class="section-label" style="color:var(--muted)">Filtros</div>
+
+          <div class="filter-group">
+            <div class="filter-label">Categoria</div>
+            <div class="filter-chips">
+              <div class="chip active">Auto</div>
+              <div class="chip">Moto</div>
+              <div class="chip">Ambos</div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-label">Aprovômetro</div>
+            <div class="filter-chips">
+              <div class="chip active">Qualquer</div>
+              <div class="chip">≤ 4 aulas</div>
+              <div class="chip">≤ 7 aulas</div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-label">Preço por aula</div>
+            <div class="price-range">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--fg)">
+                <span>R$ 85</span><span>R$ 150</span>
+              </div>
+              <div class="range-bar"><div class="range-fill"></div></div>
+              <div class="price-vals"><span>R$ 90</span><span>R$ 140</span></div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-label">Disponibilidade</div>
+            <div class="filter-chips">
+              <div class="chip">Manhã</div>
+              <div class="chip active">Tarde</div>
+              <div class="chip">Noite</div>
+              <div class="chip">Fim de semana</div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-label">Diferenciais</div>
+            <div class="filter-chips">
+              <div class="chip active">Seguro por aula</div>
+              <div class="chip">Duplo comando</div>
+              <div class="chip">Automático</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- List -->
+        <div class="list-panel">
+          <div class="list-header">
+            <span>34 instrutores encontrados</span>
+            <select><option>Melhor Aprovômetro</option></select>
+          </div>
+
+          <!-- Card 1 -->
+          <div class="instructor-card selected">
+            <div class="card-top">
+              <div class="avatar">👨‍🏫</div>
+              <div class="card-info">
+                <div class="card-name">Carlos Eduardo <span class="badge-verified">✓ DETRAN</span><span class="badge-insurance">🛡 Seguro</span></div>
+                <div class="card-sub">Auto · São Paulo, Vila Madalena · 1,2 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value">5,8</span>
+                  <span class="aprovo-unit">aulas · 47 alunos</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:78%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚗</div>
+            </div>
+            <div class="card-bottom">
+              <div class="card-price">R$ 110 <span>/ aula</span></div>
+              <div class="card-stars">★★★★★ <strong>4.9</strong> (47)</div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="instructor-card">
+            <div class="card-top">
+              <div class="avatar">👩‍🏫</div>
+              <div class="card-info">
+                <div class="card-name">Fernanda Lima <span class="badge-verified">✓ DETRAN</span></div>
+                <div class="card-sub">Auto · São Paulo, Pinheiros · 2,1 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value">7,1</span>
+                  <span class="aprovo-unit">aulas · 31 alunos</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:62%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚙</div>
+            </div>
+            <div class="card-bottom">
+              <div class="card-price">R$ 95 <span>/ aula</span></div>
+              <div class="card-stars">★★★★☆ <strong>4.7</strong> (31)</div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="instructor-card">
+            <div class="card-top">
+              <div class="avatar">👨</div>
+              <div class="card-info">
+                <div class="card-name">Marcos Silva <span class="badge-verified">✓ DETRAN</span><span class="badge-insurance">🛡 Seguro</span></div>
+                <div class="card-sub">Auto · São Paulo, Lapa · 3,4 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value">4,2</span>
+                  <span class="aprovo-unit">aulas · 89 alunos</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:90%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚕</div>
+            </div>
+            <div class="card-bottom">
+              <div class="card-price">R$ 130 <span>/ aula</span></div>
+              <div class="card-stars">★★★★★ <strong>4.95</strong> (89)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-panel">
+          <div class="map-bg"></div>
+          <div class="map-road-h" style="top:38%"></div>
+          <div class="map-road-h" style="top:62%"></div>
+          <div class="map-road-v" style="left:30%"></div>
+          <div class="map-road-v" style="left:60%"></div>
+          <div class="map-road-v" style="left:75%"></div>
+
+          <div class="map-pin" style="left:42%;top:45%">
+            <div class="pin-bubble selected">Carlos · 5,8</div>
+          </div>
+          <div class="map-pin" style="left:58%;top:55%">
+            <div class="pin-bubble">Fernanda · 7,1</div>
+          </div>
+          <div class="map-pin" style="left:35%;top:65%">
+            <div class="pin-bubble">Marcos · 4,2</div>
+          </div>
+          <div class="map-pin" style="left:68%;top:40%">
+            <div class="pin-bubble amber">Paulo · 8,5</div>
+          </div>
+          <div class="map-pin" style="left:52%;top:72%">
+            <div class="pin-bubble">Ana · 6,3</div>
+          </div>
+
+          <div class="map-search-bar">
+            <span>📍</span>
+            <span>Vila Madalena, São Paulo</span>
+          </div>
+          <div class="map-toggle">Lista ↕ Mapa</div>
+          <div class="map-zoom">
+            <button>+</button>
+            <button>−</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- DIRECTION 2: Profissional Compacto                  -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="direction" id="d2">
+  <div class="direction-header">
+    <div class="direction-number">Direção 02</div>
+    <div class="direction-meta">
+      <h3>Profissional Compacto</h3>
+      <p>Fundo escuro (#1e → #17), mapa à esquerda como hero, lista compacta na direita. Mais informação por pixel. Vibe de ferramenta profissional — pensa no instrutor experiente que quer eficiência. Cards sem padding excessivo, dados densos.</p>
+      <div class="direction-tags">
+        <span class="tag tag-green">Alta densidade</span>
+        <span class="tag tag-green">Mapa como hero</span>
+        <span class="tag tag-amber">Menos warmth</span>
+        <span class="tag tag-gray">Referência: iFood instrutor + Linear</span>
+      </div>
+    </div>
+  </div>
+  <div class="mockup-container">
+    <div class="browser-chrome">
+      <div class="browser-dots"><div class="browser-dot dot-red"></div><div class="browser-dot dot-yel"></div><div class="browser-dot dot-grn"></div></div>
+      <div class="browser-url">vialivre.com.br/instrutores</div>
+    </div>
+    <div class="d2">
+      <div class="top-bar">
+        <div class="logo">ViaLivre</div>
+        <div class="search-bar">
+          <span>🔍</span>
+          <span>Buscar por bairro…</span>
+        </div>
+        <div class="nav-tabs">
+          <div class="nav-tab active">Explorar</div>
+          <div class="nav-tab">Agenda</div>
+          <div class="nav-tab">Mensagens</div>
+          <div class="nav-tab">Perfil</div>
+        </div>
+      </div>
+      <div class="layout-split">
+
+        <!-- Map (left, dominant) -->
+        <div class="map-panel" style="position:relative">
+          <div class="d2 map-bg"></div>
+          <div class="d2 map-road-h" style="top:38%"></div>
+          <div class="d2 map-road-h" style="top:62%"></div>
+          <div class="d2 map-road-v" style="left:30%"></div>
+          <div class="d2 map-road-v" style="left:60%"></div>
+
+          <div class="map-pin" style="left:42%;top:45%">
+            <div class="pin-bubble selected">Carlos 5.8</div>
+          </div>
+          <div class="map-pin" style="left:58%;top:55%">
+            <div class="pin-bubble">Fernanda 7.1</div>
+          </div>
+          <div class="map-pin" style="left:35%;top:65%">
+            <div class="pin-bubble">Marcos 4.2</div>
+          </div>
+          <div class="map-pin" style="left:68%;top:40%">
+            <div class="pin-bubble amber">Paulo 8.5</div>
+          </div>
+          <div class="map-zoom" style="background:oklch(20% 0.01 145);border-color:oklch(28% 0.01 145)">
+            <button style="color:oklch(80% 0.01 145)">+</button>
+            <button style="color:oklch(80% 0.01 145)">−</button>
+          </div>
+          <!-- Filter row over map -->
+          <div style="position:absolute;top:12px;left:12px;right:12px;display:flex;gap:6px">
+            <div style="background:oklch(20% 0.01 145);border:1px solid oklch(32% 0.01 145);border-radius:6px;padding:6px 12px;font-size:11px;color:oklch(60% 0.01 145)">📍 Vila Madalena</div>
+            <div style="background:oklch(62% 0.18 145 / 0.15);border:1px solid var(--primary);border-radius:6px;padding:6px 12px;font-size:11px;color:oklch(72% 0.18 145)">Auto</div>
+            <div style="background:oklch(20% 0.01 145);border:1px solid oklch(32% 0.01 145);border-radius:6px;padding:6px 12px;font-size:11px;color:oklch(60% 0.01 145)">≤ R$130</div>
+            <div style="background:oklch(20% 0.01 145);border:1px solid oklch(32% 0.01 145);border-radius:6px;padding:6px 12px;font-size:11px;color:oklch(60% 0.01 145)">+ Filtros</div>
+          </div>
+        </div>
+
+        <!-- Sidebar (right) -->
+        <div class="sidebar-panel">
+          <div class="sidebar-header">
+            <span>34 instrutores</span>
+            <span style="color:var(--primary);font-size:11px;cursor:pointer">Melhor Aprovômetro ↓</span>
+          </div>
+          <div class="filter-row">
+            <div class="chip active">Auto</div>
+            <div class="chip">Moto</div>
+            <div class="chip active">Com seguro</div>
+            <div class="chip">Fim de semana</div>
+            <div class="chip">Duplo comando</div>
+          </div>
+          <div class="card-list">
+
+            <div class="instructor-card selected">
+              <div class="card-top">
+                <div class="avatar" style="width:40px;height:40px;font-size:16px">👨‍🏫</div>
+                <div class="card-info">
+                  <div class="card-name">Carlos Eduardo <span class="badge-verified">✓</span><span class="badge-insurance">🛡</span></div>
+                  <div class="card-sub">Vila Madalena · 1,2 km</div>
+                  <div class="aprovometro" style="margin-bottom:4px">
+                    <span class="aprovo-label">APROVÔMETRO</span>
+                    <span class="aprovo-value">5,8</span>
+                    <span class="aprovo-unit">· 47</span>
+                    <div class="aprovo-bar"><div class="aprovo-fill" style="width:78%"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-bottom">
+                <div class="card-price">R$ 110 <span>/ aula</span></div>
+                <div class="card-stars">★ <strong>4.9</strong> (47)</div>
+              </div>
+            </div>
+
+            <div class="instructor-card">
+              <div class="card-top">
+                <div class="avatar" style="width:40px;height:40px;font-size:16px">👩‍🏫</div>
+                <div class="card-info">
+                  <div class="card-name">Fernanda Lima <span class="badge-verified">✓</span></div>
+                  <div class="card-sub">Pinheiros · 2,1 km</div>
+                  <div class="aprovometro" style="margin-bottom:4px">
+                    <span class="aprovo-label">APROVÔMETRO</span>
+                    <span class="aprovo-value">7,1</span>
+                    <span class="aprovo-unit">· 31</span>
+                    <div class="aprovo-bar"><div class="aprovo-fill" style="width:62%"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-bottom">
+                <div class="card-price">R$ 95 <span>/ aula</span></div>
+                <div class="card-stars">★ <strong>4.7</strong> (31)</div>
+              </div>
+            </div>
+
+            <div class="instructor-card">
+              <div class="card-top">
+                <div class="avatar" style="width:40px;height:40px;font-size:16px">👨</div>
+                <div class="card-info">
+                  <div class="card-name">Marcos Silva <span class="badge-verified">✓</span><span class="badge-insurance">🛡</span></div>
+                  <div class="card-sub">Lapa · 3,4 km</div>
+                  <div class="aprovometro" style="margin-bottom:4px">
+                    <span class="aprovo-label">APROVÔMETRO</span>
+                    <span class="aprovo-value">4,2</span>
+                    <span class="aprovo-unit">· 89</span>
+                    <div class="aprovo-bar"><div class="aprovo-fill" style="width:90%"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-bottom">
+                <div class="card-price">R$ 130 <span>/ aula</span></div>
+                <div class="card-stars">★ <strong>4.95</strong> (89)</div>
+              </div>
+            </div>
+
+            <div class="instructor-card">
+              <div class="card-top">
+                <div class="avatar" style="width:40px;height:40px;font-size:16px">👩</div>
+                <div class="card-info">
+                  <div class="card-name">Ana Costa <span class="badge-verified">✓</span></div>
+                  <div class="card-sub">Perdizes · 4,0 km</div>
+                  <div class="aprovometro" style="margin-bottom:4px">
+                    <span class="aprovo-label">APROVÔMETRO</span>
+                    <span class="aprovo-value">6,3</span>
+                    <span class="aprovo-unit">· 22</span>
+                    <div class="aprovo-bar"><div class="aprovo-fill" style="width:70%"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-bottom">
+                <div class="card-price">R$ 100 <span>/ aula</span></div>
+                <div class="card-stars">★ <strong>4.8</strong> (22)</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- DIRECTION 3: Confiança em Primeiro                  -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="direction" id="d3">
+  <div class="direction-header">
+    <div class="direction-number">Direção 03</div>
+    <div class="direction-meta">
+      <h3>Confiança em Primeiro</h3>
+      <p>Top bar em verde primário (sinal imediato de marca). Barra de trust signals logo abaixo (verificado DETRAN · pagamento protegido · seguro por aula). Cada card inclui um "Trust Score" composto visível. Resolve a ansiedade antes do scroll.</p>
+      <div class="direction-tags">
+        <span class="tag tag-green">Trust máxima</span>
+        <span class="tag tag-green">Marca forte no topo</span>
+        <span class="tag tag-amber">Top bar verde pode competir com conteúdo</span>
+        <span class="tag tag-gray">Referência: Doctoralia + Booking.com</span>
+      </div>
+    </div>
+  </div>
+  <div class="mockup-container">
+    <div class="browser-chrome">
+      <div class="browser-dots"><div class="browser-dot dot-red"></div><div class="browser-dot dot-yel"></div><div class="browser-dot dot-grn"></div></div>
+      <div class="browser-url">vialivre.com.br/instrutores</div>
+    </div>
+    <div class="d3">
+      <div class="top-bar">
+        <div class="logo">ViaLivre</div>
+        <div class="search-bar">
+          <span>🔍</span>
+          <span style="color:rgba(255,255,255,0.6)">Buscar por bairro ou cidade…</span>
+        </div>
+        <div class="nav-actions">
+          <button class="btn-outline">Entrar</button>
+          <button style="background:#fff;color:var(--primary);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">Cadastrar</button>
+        </div>
+      </div>
+      <!-- Trust bar -->
+      <div class="trust-bar">
+        <div class="trust-item">
+          <div class="trust-icon">✓</div>
+          <span>Instrutores verificados DETRAN</span>
+        </div>
+        <div style="width:1px;height:20px;background:var(--border)"></div>
+        <div class="trust-item">
+          <div class="trust-icon">🔒</div>
+          <span>Pagamento protegido até a aula acontecer</span>
+        </div>
+        <div style="width:1px;height:20px;background:var(--border)"></div>
+        <div class="trust-item">
+          <div class="trust-icon">🛡</div>
+          <span>Seguro por aula disponível</span>
+        </div>
+        <div style="width:1px;height:20px;background:var(--border)"></div>
+        <div class="trust-item">
+          <div class="trust-icon">⭐</div>
+          <span>Avaliações verificadas de alunos reais</span>
+        </div>
+      </div>
+      <div class="layout-split">
+        <!-- Filters -->
+        <div class="filters-panel">
+          <div class="section-label" style="color:var(--muted)">Filtros</div>
+          <div class="filter-group">
+            <div class="filter-label">Categoria</div>
+            <div class="filter-chips">
+              <div class="chip active">Auto</div><div class="chip">Moto</div>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-label">Aprovômetro</div>
+            <div class="filter-chips">
+              <div class="chip active">Qualquer</div><div class="chip">≤ 5 aulas</div><div class="chip">≤ 7 aulas</div>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-label">Diferenciais</div>
+            <div class="filter-chips">
+              <div class="chip active">🛡 Com seguro</div><div class="chip">Duplo cmd</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- List -->
+        <div class="list-panel">
+          <!-- Card 1 -->
+          <div class="instructor-card selected">
+            <div class="card-top">
+              <div class="avatar">👨‍🏫</div>
+              <div class="card-info">
+                <div class="card-name">Carlos Eduardo <span class="badge-verified">✓ DETRAN</span><span class="badge-insurance">🛡 Seguro</span></div>
+                <div class="card-sub">Auto · Vila Madalena · 1,2 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value">5,8</span>
+                  <span class="aprovo-unit">aulas · 47 alunos</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:78%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚗</div>
+            </div>
+            <div class="trust-score">
+              <span class="trust-score-label">Confiança</span>
+              <span class="trust-score-value">9.4</span>
+              <span class="trust-score-desc">Verificado · 47 avaliações · Seguro ativo</span>
+            </div>
+            <div class="card-bottom">
+              <div class="card-price">R$ 110 <span>/ aula</span></div>
+              <div class="card-stars">★★★★★ <strong>4.9</strong></div>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="instructor-card">
+            <div class="card-top">
+              <div class="avatar">👩‍🏫</div>
+              <div class="card-info">
+                <div class="card-name">Fernanda Lima <span class="badge-verified">✓ DETRAN</span></div>
+                <div class="card-sub">Auto · Pinheiros · 2,1 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value">7,1</span>
+                  <span class="aprovo-unit">aulas · 31 alunos</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:62%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚙</div>
+            </div>
+            <div class="trust-score">
+              <span class="trust-score-label">Confiança</span>
+              <span class="trust-score-value">8.7</span>
+              <span class="trust-score-desc">Verificado · 31 avaliações</span>
+            </div>
+            <div class="card-bottom">
+              <div class="card-price">R$ 95 <span>/ aula</span></div>
+              <div class="card-stars">★★★★☆ <strong>4.7</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-panel" style="position:relative;background:oklch(93% 0.02 160);overflow:hidden">
+          <div class="map-bg"></div>
+          <div class="map-road-h" style="top:38%"></div>
+          <div class="map-road-h" style="top:62%"></div>
+          <div class="map-road-v" style="left:30%"></div>
+          <div class="map-road-v" style="left:60%"></div>
+          <div class="map-pin" style="left:42%;top:45%"><div class="pin-bubble selected">Carlos · 5,8</div></div>
+          <div class="map-pin" style="left:58%;top:55%"><div class="pin-bubble">Fernanda · 7,1</div></div>
+          <div class="map-pin" style="left:35%;top:65%"><div class="pin-bubble">Marcos · 4,2</div></div>
+          <div class="map-pin" style="left:68%;top:40%"><div class="pin-bubble amber">Paulo · 8,5</div></div>
+          <div class="map-zoom"><button>+</button><button>−</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- DIRECTION 4: Verde Dominante                        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="direction" id="d4">
+  <div class="direction-header">
+    <div class="direction-number">Direção 04</div>
+    <div class="direction-meta">
+      <h3>Verde Dominante</h3>
+      <p>Top bar preta com logo verde grande. Hero bar em gradiente verde com headline Instrument Serif italic e busca integrada. Lista de cards brancos sobre fundo verde-off-white. Presença de marca muito forte, quase editorial. Funciona bem em campanha de lançamento.</p>
+      <div class="direction-tags">
+        <span class="tag tag-green">Marca muito forte</span>
+        <span class="tag tag-green">Impacto visual alto</span>
+        <span class="tag tag-amber">Hero ocupa espaço útil</span>
+        <span class="tag tag-gray">Referência: Nubank + Gympass landing</span>
+      </div>
+    </div>
+  </div>
+  <div class="mockup-container">
+    <div class="browser-chrome">
+      <div class="browser-dots"><div class="browser-dot dot-red"></div><div class="browser-dot dot-yel"></div><div class="browser-dot dot-grn"></div></div>
+      <div class="browser-url">vialivre.com.br/instrutores</div>
+    </div>
+    <div class="d4">
+      <div class="top-bar">
+        <div class="logo">ViaLivre</div>
+        <div style="margin-left:auto;display:flex;gap:12px">
+          <button style="background:transparent;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;color:rgba(255,255,255,0.7)">Entrar</button>
+          <button class="btn-primary">Cadastrar</button>
+        </div>
+      </div>
+      <div class="hero-bar">
+        <div class="hero-headline">"Encontre seu instrutor.<br>Com dados reais."</div>
+        <div class="hero-search">
+          <span>📍</span>
+          <span style="flex:1;color:var(--muted)">Seu bairro ou cidade…</span>
+          <button class="btn-primary" style="border-radius:6px;padding:6px 14px;font-size:13px;flex-shrink:0">Buscar</button>
+        </div>
+      </div>
+      <div class="layout-split">
+        <div class="list-panel">
+          <div style="font-size:13px;color:var(--muted);margin-bottom:4px">34 instrutores próximos</div>
+
+          <div class="instructor-card selected">
+            <div class="card-top">
+              <div class="avatar">👨‍🏫</div>
+              <div class="card-info">
+                <div class="card-name">Carlos Eduardo <span class="badge-verified">✓ DETRAN</span><span class="badge-insurance">🛡 Seguro</span></div>
+                <div class="card-sub">Vila Madalena · 1,2 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value">5,8</span>
+                  <span class="aprovo-unit">aulas · 47</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:78%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚗</div>
+            </div>
+            <div class="card-bottom">
+              <div class="card-price">R$ 110 <span>/ aula</span></div>
+              <div class="card-stars">★★★★★ <strong>4.9</strong></div>
+            </div>
+          </div>
+
+          <div class="instructor-card">
+            <div class="card-top">
+              <div class="avatar">👩‍🏫</div>
+              <div class="card-info">
+                <div class="card-name">Fernanda Lima <span class="badge-verified">✓ DETRAN</span></div>
+                <div class="card-sub">Pinheiros · 2,1 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value">7,1</span>
+                  <span class="aprovo-unit">aulas · 31</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:62%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚙</div>
+            </div>
+            <div class="card-bottom">
+              <div class="card-price">R$ 95 <span>/ aula</span></div>
+              <div class="card-stars">★★★★☆ <strong>4.7</strong></div>
+            </div>
+          </div>
+
+          <div class="instructor-card">
+            <div class="card-top">
+              <div class="avatar">👨</div>
+              <div class="card-info">
+                <div class="card-name">Marcos Silva <span class="badge-verified">✓ DETRAN</span><span class="badge-insurance">🛡</span></div>
+                <div class="card-sub">Lapa · 3,4 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value">4,2</span>
+                  <span class="aprovo-unit">aulas · 89</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:90%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚕</div>
+            </div>
+            <div class="card-bottom">
+              <div class="card-price">R$ 130 <span>/ aula</span></div>
+              <div class="card-stars">★★★★★ <strong>4.95</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div style="position:relative;background:oklch(93% 0.02 160);overflow:hidden">
+          <div class="map-bg"></div>
+          <div class="map-road-h" style="top:38%"></div>
+          <div class="map-road-h" style="top:62%"></div>
+          <div class="map-road-v" style="left:30%"></div>
+          <div class="map-road-v" style="left:60%"></div>
+          <div class="map-pin" style="left:42%;top:45%"><div class="pin-bubble selected">Carlos 5,8</div></div>
+          <div class="map-pin" style="left:58%;top:55%"><div class="pin-bubble">Fernanda 7,1</div></div>
+          <div class="map-pin" style="left:35%;top:65%"><div class="pin-bubble">Marcos 4,2</div></div>
+          <div class="map-pin" style="left:68%;top:40%"><div class="pin-bubble amber">Paulo 8,5</div></div>
+          <div class="map-zoom"><button>+</button><button>−</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- DIRECTION 5: Minimal Moderno                        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="direction" id="d5">
+  <div class="direction-header">
+    <div class="direction-number">Direção 05</div>
+    <div class="direction-meta">
+      <h3>Minimal Moderno</h3>
+      <p>Máximo respiro, mínimo de cor. Logo em preto com ponto verde. Nav links horizontais. Cards com borda 1.5px e padding generoso — cada item respira. Aprovômetro ganha destaque por contraste, não por cor. Elegante, confiável, premium sem gritar.</p>
+      <div class="direction-tags">
+        <span class="tag tag-green">Premium sem ruído</span>
+        <span class="tag tag-green">Legibilidade máxima</span>
+        <span class="tag tag-amber">Menos personalidade de marca</span>
+        <span class="tag tag-gray">Referência: Linear + Stripe Docs</span>
+      </div>
+    </div>
+  </div>
+  <div class="mockup-container">
+    <div class="browser-chrome">
+      <div class="browser-dots"><div class="browser-dot dot-red"></div><div class="browser-dot dot-yel"></div><div class="browser-dot dot-grn"></div></div>
+      <div class="browser-url">vialivre.com.br/instrutores</div>
+    </div>
+    <div class="d5">
+      <div class="top-bar">
+        <div class="logo">Via<span>Livre</span></div>
+        <nav class="nav-links">
+          <a class="nav-link active" href="#">Explorar</a>
+          <a class="nav-link" href="#">Como funciona</a>
+          <a class="nav-link" href="#">Para instrutores</a>
+        </nav>
+        <div class="search-input">
+          <span>🔍</span>
+          <span>Seu bairro…</span>
+        </div>
+        <div style="display:flex;gap:10px;margin-left:16px">
+          <button class="btn-outline" style="border-radius:6px;font-size:13px">Entrar</button>
+          <button class="btn-primary" style="border-radius:6px;font-size:13px">Cadastrar</button>
+        </div>
+      </div>
+      <div class="layout-split">
+        <div class="list-panel">
+          <div class="list-header">
+            <h3>Instrutores próximos</h3>
+            <span>34 resultados · Vila Madalena</span>
+          </div>
+
+          <div class="instructor-card selected">
+            <div class="card-top">
+              <div class="avatar">👨‍🏫</div>
+              <div class="card-info">
+                <div class="card-name" style="font-size:15px">Carlos Eduardo <span class="badge-verified">✓ DETRAN</span><span class="badge-insurance">🛡 Seguro</span></div>
+                <div class="card-sub" style="font-size:13px;margin-bottom:12px">Auto · Vila Madalena · 1,2 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value" style="font-size:18px">5,8</span>
+                  <span class="aprovo-unit">aulas em média · 47 alunos</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:78%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚗</div>
+            </div>
+            <div class="card-bottom" style="margin-top:12px;padding-top:12px">
+              <div class="card-price" style="font-size:16px">R$ 110 <span>/ aula</span></div>
+              <div class="card-stars">★★★★★ <strong>4.9</strong> (47 avaliações)</div>
+            </div>
+          </div>
+
+          <div class="instructor-card">
+            <div class="card-top">
+              <div class="avatar">👩‍🏫</div>
+              <div class="card-info">
+                <div class="card-name" style="font-size:15px">Fernanda Lima <span class="badge-verified">✓ DETRAN</span></div>
+                <div class="card-sub" style="font-size:13px;margin-bottom:12px">Auto · Pinheiros · 2,1 km</div>
+                <div class="aprovometro">
+                  <span class="aprovo-label">Aprovômetro</span>
+                  <span class="aprovo-value" style="font-size:18px">7,1</span>
+                  <span class="aprovo-unit">aulas em média · 31 alunos</span>
+                  <div class="aprovo-bar"><div class="aprovo-fill" style="width:62%"></div></div>
+                </div>
+              </div>
+              <div class="car-thumb">🚙</div>
+            </div>
+            <div class="card-bottom" style="margin-top:12px;padding-top:12px">
+              <div class="card-price" style="font-size:16px">R$ 95 <span>/ aula</span></div>
+              <div class="card-stars">★★★★☆ <strong>4.7</strong> (31 avaliações)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div style="position:relative;background:oklch(93% 0.02 160);overflow:hidden">
+          <div class="map-bg"></div>
+          <div class="map-road-h" style="top:38%"></div>
+          <div class="map-road-h" style="top:62%"></div>
+          <div class="map-road-v" style="left:30%"></div>
+          <div class="map-road-v" style="left:60%"></div>
+          <div class="map-pin" style="left:42%;top:45%"><div class="pin-bubble selected">Carlos 5,8</div></div>
+          <div class="map-pin" style="left:58%;top:55%"><div class="pin-bubble">Fernanda 7,1</div></div>
+          <div class="map-pin" style="left:35%;top:65%"><div class="pin-bubble">Marcos 4,2</div></div>
+          <div class="map-pin" style="left:68%;top:40%"><div class="pin-bubble amber">Paulo 8,5</div></div>
+          <div class="map-zoom"><button>+</button><button>−</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- DIRECTION 6: Data-Driven                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="direction" id="d6">
+  <div class="direction-header">
+    <div class="direction-number">Direção 06</div>
+    <div class="direction-meta">
+      <h3>Data-Driven</h3>
+      <p>Fundo muito escuro (quase azul-noite). Aprovômetro como hero metric no painel principal — três métricas em destaque antes do mapa. Lista como tabela compacta à esquerda. JetBrains Mono usada amplamente. Para o usuário que confia em dados acima de fotos.</p>
+      <div class="direction-tags">
+        <span class="tag tag-green">Aprovômetro hero</span>
+        <span class="tag tag-green">Dados em primeiro plano</span>
+        <span class="tag tag-amber">Fria para público 18-25</span>
+        <span class="tag tag-gray">Referência: Bloomberg Terminal + Replit</span>
+      </div>
+    </div>
+  </div>
+  <div class="mockup-container">
+    <div class="browser-chrome">
+      <div class="browser-dots"><div class="browser-dot dot-red"></div><div class="browser-dot dot-yel"></div><div class="browser-dot dot-grn"></div></div>
+      <div class="browser-url">vialivre.com.br/instrutores</div>
+    </div>
+    <div class="d6">
+      <div class="top-bar">
+        <div class="logo">ViaLivre</div>
+        <div style="margin-left:16px;background:oklch(18% 0.01 240);border:1px solid oklch(25% 0.01 240);border-radius:6px;padding:6px 12px;font-size:12px;color:oklch(60% 0.01 240);display:flex;align-items:center;gap:8px;width:280px">
+          <span>📍</span><span>Vila Madalena, SP</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <div style="background:oklch(18% 0.01 240);border:1px solid oklch(25% 0.01 240);border-radius:4px;padding:5px 10px;font-size:11px;color:oklch(55% 0.01 240)">Auto</div>
+          <div style="background:oklch(62% 0.18 145 / 0.12);border:1px solid oklch(62% 0.18 145 / 0.3);border-radius:4px;padding:5px 10px;font-size:11px;color:oklch(72% 0.18 145)">≤ R$130</div>
+          <div style="background:oklch(18% 0.01 240);border:1px solid oklch(25% 0.01 240);border-radius:4px;padding:5px 10px;font-size:11px;color:oklch(55% 0.01 240)">Com seguro</div>
+        </div>
+      </div>
+      <div class="layout-split">
+        <!-- Data panel -->
+        <div class="data-panel">
+          <div class="data-header">
+            <div class="data-header h3" style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:oklch(45% 0.01 240);margin-bottom:4px">Instrutores na área</div>
+            <div class="data-count">34 <span>encontrados</span></div>
+          </div>
+          <div style="padding:10px 20px;border-bottom:1px solid oklch(18% 0.01 240);font-size:10px;color:oklch(40% 0.01 240);display:flex;gap:16px">
+            <span style="color:oklch(72% 0.18 145)">↑ Melhor Aprovômetro</span>
+            <span>Menor preço</span>
+            <span>Mais próximo</span>
+          </div>
+
+          <div class="instructor-row selected">
+            <div class="avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">👨‍🏫</div>
+            <div class="row-info">
+              <div class="row-name">Carlos Eduardo</div>
+              <div class="row-sub">Vila Madalena · R$110 · ✓ 🛡</div>
+            </div>
+            <div class="row-aprovo">5,8<span>47 alunos</span></div>
+          </div>
+          <div class="instructor-row">
+            <div class="avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">👩‍🏫</div>
+            <div class="row-info">
+              <div class="row-name">Fernanda Lima</div>
+              <div class="row-sub">Pinheiros · R$95 · ✓</div>
+            </div>
+            <div class="row-aprovo">7,1<span>31 alunos</span></div>
+          </div>
+          <div class="instructor-row">
+            <div class="avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">👨</div>
+            <div class="row-info">
+              <div class="row-name">Marcos Silva</div>
+              <div class="row-sub">Lapa · R$130 · ✓ 🛡</div>
+            </div>
+            <div class="row-aprovo" style="color:oklch(72% 0.18 145)">4,2<span>89 alunos</span></div>
+          </div>
+          <div class="instructor-row">
+            <div class="avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">👩</div>
+            <div class="row-info">
+              <div class="row-name">Ana Costa</div>
+              <div class="row-sub">Perdizes · R$100 · ✓</div>
+            </div>
+            <div class="row-aprovo">6,3<span>22 alunos</span></div>
+          </div>
+          <div class="instructor-row">
+            <div class="avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">👨‍💼</div>
+            <div class="row-info">
+              <div class="row-name">Paulo Rocha</div>
+              <div class="row-sub">Santana · R$85 · ✓</div>
+            </div>
+            <div class="row-aprovo" style="color:oklch(78% 0.15 85)">8,5<span>12 alunos</span></div>
+          </div>
+          <div class="instructor-row">
+            <div class="avatar" style="width:36px;height:36px;font-size:14px;flex-shrink:0">👩‍🦱</div>
+            <div class="row-info">
+              <div class="row-name">Renata Souza</div>
+              <div class="row-sub">Moema · R$120 · ✓ 🛡</div>
+            </div>
+            <div class="row-aprovo">5,1<span>63 alunos</span></div>
+          </div>
+        </div>
+
+        <!-- Main panel -->
+        <div class="main-panel">
+          <div class="hero-metric">
+            <div class="metric-block">
+              <div class="metric-label">Aprovômetro — Carlos</div>
+              <div class="metric-value">5,8</div>
+              <div class="metric-sub">aulas em média · 47 alunos</div>
+            </div>
+            <div class="metric-block">
+              <div class="metric-label">Avaliação</div>
+              <div class="metric-value">4,9</div>
+              <div class="metric-sub">de 5,0 · 47 avaliações</div>
+            </div>
+            <div class="metric-block">
+              <div class="metric-label">Aprovação</div>
+              <div class="metric-value warn">91%</div>
+              <div class="metric-sub">dos alunos aprovaram</div>
+            </div>
+          </div>
+          <div class="map-overlay">
+            <div style="position:relative;width:100%;height:100%;background:oklch(15% 0.02 200);overflow:hidden">
+              <div style="position:absolute;inset:0;
+                background:
+                  linear-gradient(oklch(19% 0.02 200 / 0.5) 1px, transparent 1px),
+                  linear-gradient(90deg, oklch(19% 0.02 200 / 0.5) 1px, transparent 1px);
+                background-size:40px 40px;">
+              </div>
+              <div style="position:absolute;background:oklch(25% 0.01 200);height:5px;left:0;right:0;top:38%"></div>
+              <div style="position:absolute;background:oklch(25% 0.01 200);height:5px;left:0;right:0;top:62%"></div>
+              <div style="position:absolute;background:oklch(25% 0.01 200);width:5px;top:0;bottom:0;left:30%"></div>
+              <div style="position:absolute;background:oklch(25% 0.01 200);width:5px;top:0;bottom:0;left:60%"></div>
+              <div class="map-pin" style="left:42%;top:45%"><div class="pin-bubble selected">Carlos 5,8</div></div>
+              <div class="map-pin" style="left:58%;top:55%"><div class="pin-bubble">Fernanda 7,1</div></div>
+              <div class="map-pin" style="left:35%;top:65%"><div class="pin-bubble">Marcos 4,2</div></div>
+              <div class="map-pin" style="left:68%;top:40%"><div class="pin-bubble amber">Paulo 8,5</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SUMMARY TABLE                                       -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="summary" class="summary">
+  <h2>Comparativo das Direções</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Direção</th>
+        <th>Ponto forte</th>
+        <th>Ponto de atenção</th>
+        <th>Melhor para</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span style="font-family:monospace;color:var(--primary)">01</span></td>
+        <td class="dir-name">Catálogo Aberto</td>
+        <td class="strength">Familiar (Airbnb), exploração livre, cards ricos com tudo visível</td>
+        <td class="weakness">Mais área ocupada, filtros podem afastar usuário iniciante</td>
+        <td>Aluno que quer comparar com calma</td>
+      </tr>
+      <tr>
+        <td><span style="font-family:monospace;color:var(--primary)">02</span></td>
+        <td class="dir-name">Profissional Compacto</td>
+        <td class="strength">Mapa dominante, mais resultados visíveis, operação rápida</td>
+        <td class="weakness">Menos warmth — pode parecer fria para público jovem</td>
+        <td>Usuário que já sabe o que quer, eficiência</td>
+      </tr>
+      <tr>
+        <td><span style="font-family:monospace;color:var(--primary)">03</span></td>
+        <td class="dir-name">Confiança em Primeiro</td>
+        <td class="strength">Trust signals em posição privilegiada, reduz ansiedade antes do scroll</td>
+        <td class="weakness">Top bar verde pode competir com conteúdo dos cards</td>
+        <td>Primeiro acesso, público que vem do CFC com desconfiança</td>
+      </tr>
+      <tr>
+        <td><span style="font-family:monospace;color:var(--primary)">04</span></td>
+        <td class="dir-name">Verde Dominante</td>
+        <td class="strength">Presença de marca muito forte, funciona bem como landing page</td>
+        <td class="weakness">Hero bar ocupa espaço útil, pode frustrar usuário em retorno</td>
+        <td>Landing page de aquisição, campanha de lançamento</td>
+      </tr>
+      <tr>
+        <td><span style="font-family:monospace;color:var(--primary)">05</span></td>
+        <td class="dir-name">Minimal Moderno</td>
+        <td class="strength">Máxima legibilidade, premium sem ruído, Aprovômetro se destaca por contraste</td>
+        <td class="weakness">Menos personalidade de marca, pode parecer genérico</td>
+        <td>Usuário sofisticado, contexto de confiança estabelecida</td>
+      </tr>
+      <tr>
+        <td><span style="font-family:monospace;color:var(--primary)">06</span></td>
+        <td class="dir-name">Data-Driven</td>
+        <td class="strength">Aprovômetro como hero metric, dashboard de métricas antes do mapa</td>
+        <td class="weakness">Fria para público 18-25, curva de aprendizado maior</td>
+        <td>Público analítico, ou como base do portal do instrutor</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<footer class="footer">
+  ViaLivre Design Directions · Step 9 — BMAD UX Design Specification · 2026-05-12
+</footer>
+
+</body>
+</html>

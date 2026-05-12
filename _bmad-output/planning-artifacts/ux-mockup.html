@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViaLivre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ─── Reset ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ─── Tokens ─── */
+:root {
+  --green:        oklch(55% 0.17 145);
+  --green-dark:   oklch(40% 0.15 145);
+  --green-bg:     oklch(96% 0.035 145);
+  --green-border: oklch(88% 0.07 145);
+
+  --ink:    #222;
+  --ink-2:  #555;
+  --ink-3:  #888;
+  --ink-4:  #bbb;
+  --ink-5:  #ddd;
+
+  --white:  #fff;
+  --bg:     #f7f7f5;
+
+  --f-serif: 'Instrument Serif', Georgia, serif;
+  --f-sans:  'Plus Jakarta Sans', system-ui, sans-serif;
+  --f-mono:  'JetBrains Mono', 'Courier New', monospace;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,.08);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.1),  0 0 0 1px rgba(0,0,0,.04);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06);
+}
+
+body {
+  font-family: var(--f-sans);
+  background: #d4d4d4;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Page chrome ─── */
+.page {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.page-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 2px;
+}
+.page-meta .label {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: #777;
+  background: rgba(255,255,255,.5);
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+/* ─── Browser frame ─── */
+.browser {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.15),
+    0 24px 60px rgba(0,0,0,.25),
+    0 4px 12px rgba(0,0,0,.1);
+}
+.chrome {
+  height: 40px;
+  background: #e8e8e8;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 12px;
+}
+.chrome-dots { display: flex; gap: 5px; }
+.chrome-dot  { width: 11px; height: 11px; border-radius: 50%; }
+.chrome-dot-r { background: #fe5f57; }
+.chrome-dot-y { background: #febc2e; }
+.chrome-dot-g { background: #28c840; }
+.chrome-url {
+  flex: 1;
+  max-width: 320px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: #666;
+}
+
+/* ════════════════════════════════════════
+   PRODUCT
+════════════════════════════════════════ */
+.product {
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  height: 700px;
+}
+
+/* ─── NAV ─── */
+.nav {
+  height: 72px;
+  border-bottom: 1px solid var(--ink-5);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 24px;
+  flex-shrink: 0;
+  background: var(--white);
+}
+
+.logo {
+  font-family: var(--f-serif);
+  font-style: italic;
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -.02em;
+  flex-shrink: 0;
+}
+
+/* Airbnb pill search */
+.search-pill {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--ink-5);
+  border-radius: 40px;
+  box-shadow: var(--shadow-xs);
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: box-shadow .15s;
+}
+.search-pill:hover { box-shadow: var(--shadow-sm); }
+
+.sp-segment {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 18px;
+  border-right: 1px solid var(--ink-5);
+  gap: 1px;
+}
+.sp-segment:last-of-type { border-right: none; }
+.sp-label { font-size: 10px; font-weight: 700; color: var(--ink); letter-spacing: .01em; }
+.sp-value { font-size: 12px; color: var(--ink-3); }
+.sp-btn {
+  background: var(--green);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  margin: 0 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+.sp-btn svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.nav-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-btn {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  background: none;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 14px;
+  transition: background .12s;
+}
+.nav-btn:hover { background: var(--bg); }
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--ink-5);
+  border-radius: 22px;
+  padding: 5px 6px 5px 14px;
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: box-shadow .15s;
+}
+.nav-user:hover { box-shadow: var(--shadow-sm); }
+.nav-user-text { font-size: 13px; font-weight: 500; color: var(--ink); }
+.nav-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.nav-avatar svg { width: 18px; height: 18px; fill: #fff; }
+
+/* ─── FILTER STRIP ─── */
+.filter-strip {
+  height: 52px;
+  border-bottom: 1px solid var(--ink-5);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 0;
+  flex-shrink: 0;
+  overflow-x: auto;
+  background: var(--white);
+}
+.filter-strip::-webkit-scrollbar { display: none; }
+
+.f-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 0 18px;
+  height: 100%;
+  justify-content: center;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color .15s, opacity .15s;
+  opacity: .6;
+}
+.f-tab:hover { opacity: .85; }
+.f-tab.on { border-bottom-color: var(--ink); opacity: 1; }
+.f-tab-icon svg { width: 20px; height: 20px; stroke: var(--ink); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.f-tab-label { font-size: 10px; font-weight: 600; color: var(--ink); white-space: nowrap; letter-spacing: .01em; }
+
+.f-divider { width: 1px; height: 24px; background: var(--ink-5); margin: 0 8px; flex-shrink: 0; }
+
+.filter-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  background: none;
+  flex-shrink: 0;
+  transition: background .12s;
+}
+.filter-btn:hover { background: var(--bg); }
+.filter-btn svg { width: 14px; height: 14px; stroke: var(--ink); fill: none; stroke-width: 2; stroke-linecap: round; }
+
+/* ─── SPLIT ─── */
+.split {
+  display: grid;
+  grid-template-columns: minmax(380px, 44%) 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── LIST ─── */
+.list-col {
+  overflow-y: scroll;
+  padding: 24px 20px 32px;
+  background: var(--white);
+}
+.list-col::-webkit-scrollbar { width: 6px; }
+.list-col::-webkit-scrollbar-thumb { background: var(--ink-5); border-radius: 3px; }
+
+.list-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 20px;
+  letter-spacing: -.02em;
+}
+.list-heading span { font-weight: 400; color: var(--ink-3); font-size: 13px; margin-left: 6px; }
+
+/* ─── CARD ─── */
+.card {
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--ink-5);
+  cursor: pointer;
+  position: relative;
+}
+.card:last-child { border-bottom: none; }
+
+/* Photo */
+.card-img {
+  width: 100%;
+  height: 196px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 108px;
+  grid-template-rows: 1fr;
+  gap: 3px;
+  background: var(--ink-5);
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.img-main {
+  background: linear-gradient(145deg, #ede8e0 0%, #ddd5c5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.img-person {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+}
+
+.img-side {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.img-car {
+  flex: 1;
+  background: linear-gradient(145deg, #e2e8ee 0%, #cfd8e3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+.img-street {
+  height: 62px;
+  background: linear-gradient(145deg, #e0e5de 0%, #cdd4c9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* badge overlay */
+.card-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 5px;
+  z-index: 2;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--f-sans);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+.badge-v {
+  background: rgba(255,255,255,.88);
+  color: var(--ink);
+  border: 1px solid rgba(0,0,0,.08);
+}
+.badge-s {
+  background: rgba(255,255,255,.88);
+  color: #1d4ed8;
+  border: 1px solid rgba(29,78,216,.14);
+}
+
+.card-fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  background: rgba(255,255,255,.7);
+  backdrop-filter: blur(4px);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-2);
+}
+.card-fav svg { width: 15px; height: 15px; stroke: var(--ink); fill: none; stroke-width: 1.8; }
+
+/* Card body */
+.card-body {}
+
+.card-row1 {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+.card-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.card-rating .star svg { width: 11px; height: 11px; fill: var(--ink); stroke: none; }
+.card-rating .val { font-weight: 600; color: var(--ink); font-size: 13px; }
+.card-rating .cnt { color: var(--ink-3); }
+
+.card-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+
+/* Aprovômetro in-card */
+.aprovo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: 8px;
+  padding: 7px 11px;
+  margin-bottom: 10px;
+}
+.aprovo-tag .num {
+  font-family: var(--f-mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--green-dark);
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+.aprovo-tag .detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.aprovo-tag .word {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--green-dark);
+  opacity: .65;
+}
+.aprovo-tag .desc {
+  font-size: 11px;
+  color: var(--green-dark);
+  opacity: .8;
+}
+
+.card-price {
+  font-size: 13px;
+  color: var(--ink);
+}
+.card-price strong {
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ─── MAP ─── */
+.map-col {
+  position: relative;
+  background: #e6ede2;
+  overflow: hidden;
+}
+
+/* SVG map background */
+.map-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Pins */
+.pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+  z-index: 3;
+}
+.pin-inner {
+  font-family: var(--f-sans);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--white);
+  border: 1.5px solid rgba(0,0,0,.12);
+  border-radius: 22px;
+  padding: 6px 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.04);
+  position: relative;
+  transition: transform .12s, box-shadow .12s;
+}
+.pin-inner:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 16px rgba(0,0,0,.18), 0 0 0 1px rgba(0,0,0,.06);
+}
+.pin-inner::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: var(--white);
+  border-bottom: none;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.1));
+}
+.pin.selected .pin-inner {
+  background: var(--ink);
+  color: var(--white);
+  border-color: transparent;
+  box-shadow: 0 3px 12px rgba(0,0,0,.25);
+}
+.pin.selected .pin-inner::after {
+  border-top-color: var(--ink);
+}
+
+/* Map overlay controls */
+.map-bar {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 4;
+}
+.map-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 24px;
+  padding: 9px 16px;
+  box-shadow: var(--shadow-sm);
+  flex: 1;
+  cursor: pointer;
+}
+.map-search-box svg { width: 14px; height: 14px; stroke: var(--ink-3); fill: none; stroke-width: 2; stroke-linecap: round; flex-shrink: 0; }
+.map-search-text { font-size: 13px; color: var(--ink-3); }
+.map-search-div  { width: 1px; height: 16px; background: var(--ink-5); }
+.map-search-where { font-size: 13px; font-weight: 600; color: var(--ink); }
+
+.map-chip {
+  background: var(--white);
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  box-shadow: var(--shadow-xs);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.map-zoom {
+  position: absolute;
+  bottom: 76px;
+  right: 14px;
+  z-index: 4;
+  background: var(--white);
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+}
+.zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--ink-2);
+  line-height: 1;
+  border-bottom: 1px solid var(--ink-5);
+}
+.zoom-btn:last-child { border-bottom: none; }
+
+/* Bottom sheet preview */
+.sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -2px 20px rgba(0,0,0,.1);
+  z-index: 5;
+  padding: 0 20px 20px;
+  transform: translateY(calc(100% - 84px));
+}
+.sheet-handle {
+  width: 32px;
+  height: 4px;
+  background: var(--ink-5);
+  border-radius: 2px;
+  margin: 10px auto 14px;
+}
+.sheet-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.sheet-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #ede8e0, #ddd5c5);
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sheet-photo svg { width: 36px; opacity: .35; }
+.sheet-info { flex: 1; min-width: 0; }
+.sheet-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sheet-meta {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sheet-aprovo {
+  font-family: var(--f-mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--green-dark);
+  line-height: 1;
+  flex-shrink: 0;
+  text-align: right;
+}
+.sheet-aprovo-label {
+  font-family: var(--f-sans);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-3);
+  margin-top: 3px;
+  text-align: right;
+}
+.sheet-cta {
+  background: var(--green);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  padding: 13px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: -.01em;
+}
+
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-meta">
+    <span class="label">UX Mockup · Tela principal · Desktop</span>
+    <span class="label">ViaLivre · 2026</span>
+  </div>
+
+  <div class="browser">
+    <div class="chrome">
+      <div class="chrome-dots">
+        <div class="chrome-dot chrome-dot-r"></div>
+        <div class="chrome-dot chrome-dot-y"></div>
+        <div class="chrome-dot chrome-dot-g"></div>
+      </div>
+      <div class="chrome-url">vialivre.com.br/instrutores</div>
+    </div>
+
+    <div class="product">
+
+      <!-- NAV -->
+      <nav class="nav">
+        <div class="logo">ViaLivre</div>
+
+        <div class="search-pill">
+          <div class="sp-segment">
+            <span class="sp-label">Onde</span>
+            <span class="sp-value">Vila Madalena, SP</span>
+          </div>
+          <div class="sp-segment">
+            <span class="sp-label">Categoria</span>
+            <span class="sp-value">Auto · Moto</span>
+          </div>
+          <div class="sp-segment">
+            <span class="sp-label">Aprovômetro</span>
+            <span class="sp-value">Qualquer faixa</span>
+          </div>
+          <button class="sp-btn">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+          </button>
+        </div>
+
+        <div class="nav-end">
+          <button class="nav-btn">Para instrutores</button>
+          <div class="nav-user">
+            <span class="nav-user-text">Entrar</span>
+            <div class="nav-avatar">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <line x1="3" y1="6" x2="21" y2="6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="12" x2="21" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="18" x2="21" y2="18" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- FILTER STRIP -->
+      <div class="filter-strip">
+        <div class="f-tab on">
+          <span class="f-tab-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="7" rx="2"/><path d="M5 11V8a7 7 0 0 1 14 0v3"/><circle cx="7.5" cy="17.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="16.5" cy="17.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+          </span>
+          <span class="f-tab-label">Automóvel</span>
+        </div>
+        <div class="f-tab">
+          <span class="f-tab-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+          </span>
+          <span class="f-tab-label">Moto</span>
+        </div>
+        <div class="f-tab">
+          <span class="f-tab-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </span>
+          <span class="f-tab-label">Com seguro</span>
+        </div>
+        <div class="f-tab">
+          <span class="f-tab-icon">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </span>
+          <span class="f-tab-label">Avaliação 4.8+</span>
+        </div>
+        <div class="f-tab">
+          <span class="f-tab-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </span>
+          <span class="f-tab-label">Fim de semana</span>
+        </div>
+        <div class="f-tab">
+          <span class="f-tab-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <span class="f-tab-label">Disponível hoje</span>
+        </div>
+        <div class="f-divider"></div>
+        <button class="filter-btn">
+          <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          Filtros
+        </button>
+      </div>
+
+      <!-- SPLIT -->
+      <div class="split">
+
+        <!-- LIST -->
+        <div class="list-col">
+          <div class="list-heading">
+            Instrutores próximos <span>34 resultados</span>
+          </div>
+
+          <!-- ── Card 1 ── -->
+          <div class="card">
+            <div class="card-img">
+              <div class="img-main">
+                <!-- Instructor silhouette -->
+                <svg class="img-person" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <ellipse cx="100" cy="70" rx="36" ry="40" fill="rgba(0,0,0,.12)"/>
+                  <path d="M20 260 Q20 160 100 155 Q180 160 180 260Z" fill="rgba(0,0,0,.12)"/>
+                </svg>
+              </div>
+              <div class="img-side">
+                <div class="img-car">
+                  <!-- Car silhouette -->
+                  <svg viewBox="0 0 120 70" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:80%;opacity:.3">
+                    <rect x="10" y="30" width="100" height="28" rx="4" fill="#445"/>
+                    <path d="M25 30 L35 12 L85 12 L95 30Z" fill="#445"/>
+                    <circle cx="30" cy="60" r="8" fill="#445"/>
+                    <circle cx="90" cy="60" r="8" fill="#445"/>
+                  </svg>
+                </div>
+                <div class="img-street">
+                  <!-- Road silhouette -->
+                  <svg viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:90%;opacity:.2">
+                    <rect x="0" y="20" width="120" height="20" fill="#333"/>
+                    <rect x="50" y="27" width="20" height="6" fill="#fff"/>
+                    <rect x="0" y="0" width="120" height="20" fill="#556B45"/>
+                    <rect x="0" y="40" width="120" height="20" fill="#556B45"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-v">
+                  <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Verificado DETRAN
+                </span>
+                <span class="badge badge-s">
+                  <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 1l4 2v4c0 2.5-4 5-4 5S2 9.5 2 7V3l4-2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                  Seguro
+                </span>
+              </div>
+              <button class="card-fav">
+                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </button>
+            </div>
+
+            <div class="card-body">
+              <div class="card-row1">
+                <span class="card-name">Carlos Eduardo Mendes</span>
+                <div class="card-rating">
+                  <span class="star"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg></span>
+                  <span class="val">4,9</span>
+                  <span class="cnt">(47)</span>
+                </div>
+              </div>
+              <div class="card-sub">Auto · Vila Madalena · 1,2 km</div>
+
+              <div class="aprovo-tag">
+                <span class="num">5,8</span>
+                <div class="detail">
+                  <span class="word">Aprovômetro</span>
+                  <span class="desc">aulas até aprovação · 47 alunos</span>
+                </div>
+              </div>
+
+              <div class="card-price">
+                <strong>R$ 110</strong> por aula
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Card 2 ── -->
+          <div class="card">
+            <div class="card-img">
+              <div class="img-main" style="background:linear-gradient(145deg,#e8e0ee,#d8cce0)">
+                <svg class="img-person" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <ellipse cx="100" cy="70" rx="34" ry="38" fill="rgba(0,0,0,.1)"/>
+                  <path d="M25 260 Q25 165 100 158 Q175 165 175 260Z" fill="rgba(0,0,0,.1)"/>
+                </svg>
+              </div>
+              <div class="img-side">
+                <div class="img-car" style="background:linear-gradient(145deg,#dce4f0,#ccd4e4)">
+                  <svg viewBox="0 0 120 70" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:80%;opacity:.3">
+                    <rect x="10" y="30" width="100" height="28" rx="4" fill="#334"/>
+                    <path d="M30 30 L42 14 L80 14 L90 30Z" fill="#334"/>
+                    <circle cx="30" cy="60" r="8" fill="#334"/>
+                    <circle cx="90" cy="60" r="8" fill="#334"/>
+                  </svg>
+                </div>
+                <div class="img-street" style="background:linear-gradient(145deg,#dde0ee,#ccd0e2)">
+                  <svg viewBox="0 0 120 60" fill="none" style="width:90%;opacity:.18">
+                    <rect x="0" y="20" width="120" height="20" fill="#333"/>
+                    <rect x="50" y="27" width="20" height="6" fill="#fff"/>
+                    <rect x="0" y="0" width="120" height="20" fill="#4a5570"/>
+                    <rect x="0" y="40" width="120" height="20" fill="#4a5570"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-v">
+                  <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Verificada DETRAN
+                </span>
+              </div>
+              <button class="card-fav">
+                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="card-row1">
+                <span class="card-name">Fernanda Lima</span>
+                <div class="card-rating">
+                  <span class="star"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg></span>
+                  <span class="val">4,7</span>
+                  <span class="cnt">(31)</span>
+                </div>
+              </div>
+              <div class="card-sub">Auto · Pinheiros · 2,1 km</div>
+              <div class="aprovo-tag">
+                <span class="num">7,1</span>
+                <div class="detail">
+                  <span class="word">Aprovômetro</span>
+                  <span class="desc">aulas até aprovação · 31 alunos</span>
+                </div>
+              </div>
+              <div class="card-price"><strong>R$ 95</strong> por aula</div>
+            </div>
+          </div>
+
+          <!-- ── Card 3 ── -->
+          <div class="card">
+            <div class="card-img">
+              <div class="img-main" style="background:linear-gradient(145deg,#e0eee0,#cce0cc)">
+                <svg class="img-person" viewBox="0 0 200 260" fill="none">
+                  <ellipse cx="100" cy="72" rx="38" ry="42" fill="rgba(0,0,0,.11)"/>
+                  <path d="M18 260 Q18 158 100 152 Q182 158 182 260Z" fill="rgba(0,0,0,.11)"/>
+                </svg>
+              </div>
+              <div class="img-side">
+                <div class="img-car" style="background:linear-gradient(145deg,#e4eae0,#d4e0d0)">
+                  <svg viewBox="0 0 120 70" fill="none" style="width:80%;opacity:.28">
+                    <rect x="8" y="28" width="104" height="30" rx="5" fill="#3a4a3a"/>
+                    <path d="M22 28 L36 10 L84 10 L98 28Z" fill="#3a4a3a"/>
+                    <circle cx="28" cy="60" r="9" fill="#3a4a3a"/>
+                    <circle cx="92" cy="60" r="9" fill="#3a4a3a"/>
+                  </svg>
+                </div>
+                <div class="img-street" style="background:linear-gradient(145deg,#dce4d8,#ccd4c4)">
+                  <svg viewBox="0 0 120 60" fill="none" style="width:90%;opacity:.2">
+                    <rect x="0" y="20" width="120" height="20" fill="#333"/>
+                    <rect x="50" y="27" width="20" height="6" fill="#fff"/>
+                    <rect x="0" y="0" width="120" height="20" fill="#4a5a3a"/>
+                    <rect x="0" y="40" width="120" height="20" fill="#4a5a3a"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-v">
+                  <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Verificado DETRAN
+                </span>
+                <span class="badge badge-s">
+                  <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M6 1l4 2v4c0 2.5-4 5-4 5S2 9.5 2 7V3l4-2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                  Seguro
+                </span>
+              </div>
+              <button class="card-fav">
+                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="card-row1">
+                <span class="card-name">Marcos Silva</span>
+                <div class="card-rating">
+                  <span class="star"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/></svg></span>
+                  <span class="val">4,95</span>
+                  <span class="cnt">(89)</span>
+                </div>
+              </div>
+              <div class="card-sub">Auto · Lapa · 3,4 km</div>
+              <div class="aprovo-tag">
+                <span class="num" style="color:oklch(35% 0.14 145)">4,2</span>
+                <div class="detail">
+                  <span class="word">Aprovômetro</span>
+                  <span class="desc">aulas até aprovação · 89 alunos</span>
+                </div>
+              </div>
+              <div class="card-price"><strong>R$ 130</strong> por aula</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- MAP -->
+        <div class="map-col">
+
+          <!-- SVG Map -->
+          <svg class="map-svg" viewBox="0 0 800 628" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <!-- Base -->
+            <rect width="800" height="628" fill="#e8ede4"/>
+            <!-- Blocks/parcels -->
+            <rect x="0"   y="0"   width="210" height="170" fill="#dfe8da" rx="2"/>
+            <rect x="220" y="0"   width="260" height="170" fill="#dfe8da" rx="2"/>
+            <rect x="490" y="0"   width="310" height="170" fill="#dfe8da" rx="2"/>
+            <rect x="0"   y="180" width="130" height="200" fill="#dfe8da" rx="2"/>
+            <rect x="140" y="180" width="290" height="200" fill="#dfe8da" rx="2"/>
+            <rect x="440" y="180" width="180" height="200" fill="#dfe8da" rx="2"/>
+            <rect x="630" y="180" width="170" height="200" fill="#dfe8da" rx="2"/>
+            <rect x="0"   y="390" width="260" height="238" fill="#dfe8da" rx="2"/>
+            <rect x="270" y="390" width="200" height="238" fill="#dfe8da" rx="2"/>
+            <rect x="480" y="390" width="320" height="238" fill="#dfe8da" rx="2"/>
+            <!-- Park / green area -->
+            <rect x="220" y="180" width="210" height="200" fill="#cdd8c5" rx="4"/>
+            <rect x="240" y="195" width="170" height="170" fill="#c2d0b8" rx="3"/>
+
+            <!-- Main roads -->
+            <rect x="0"   y="170" width="800" height="12" fill="#fff" opacity=".85"/>
+            <rect x="0"   y="378" width="800" height="14" fill="#fff" opacity=".85"/>
+            <rect x="210" y="0"   width="12"  height="628" fill="#fff" opacity=".85"/>
+            <rect x="478" y="0"   width="12"  height="628" fill="#fff" opacity=".85"/>
+
+            <!-- Secondary roads -->
+            <rect x="130" y="178" width="8" height="214" fill="#fff" opacity=".6"/>
+            <rect x="428" y="178" width="8" height="214" fill="#fff" opacity=".6"/>
+            <rect x="620" y="178" width="8" height="214" fill="#fff" opacity=".6"/>
+            <rect x="260" y="388" width="8" height="240" fill="#fff" opacity=".6"/>
+            <rect x="470" y="388" width="8" height="240" fill="#fff" opacity=".6"/>
+            <rect x="0"   y="290" width="800" height="8" fill="#fff" opacity=".5"/>
+            <rect x="0"   y="490" width="800" height="8" fill="#fff" opacity=".5"/>
+            <rect x="340" y="0"   width="8"  height="628" fill="#fff" opacity=".5"/>
+            <rect x="700" y="0"   width="8"  height="628" fill="#fff" opacity=".5"/>
+
+            <!-- Road dashes -->
+            <rect x="216" y="200" width="18" height="3" rx="1" fill="#ddd" opacity=".7"/>
+            <rect x="216" y="220" width="18" height="3" rx="1" fill="#ddd" opacity=".7"/>
+            <rect x="216" y="240" width="18" height="3" rx="1" fill="#ddd" opacity=".7"/>
+            <rect x="216" y="260" width="18" height="3" rx="1" fill="#ddd" opacity=".7"/>
+            <rect x="216" y="280" width="18" height="3" rx="1" fill="#ddd" opacity=".7"/>
+            <rect x="216" y="300" width="18" height="3" rx="1" fill="#ddd" opacity=".7"/>
+            <rect x="216" y="320" width="18" height="3" rx="1" fill="#ddd" opacity=".7"/>
+            <rect x="216" y="340" width="18" height="3" rx="1" fill="#ddd" opacity=".7"/>
+          </svg>
+
+          <!-- Map controls -->
+          <div class="map-bar">
+            <div class="map-search-box">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+              <span class="map-search-where">Vila Madalena</span>
+              <span class="map-search-div"></span>
+              <span class="map-search-text">Auto · Qualquer faixa</span>
+            </div>
+            <div class="map-chip">Pesquisar nessa área</div>
+          </div>
+
+          <!-- Pins -->
+          <div class="pin selected" style="left:38%;top:48%">
+            <div class="pin-inner">R$ 110</div>
+          </div>
+          <div class="pin" style="left:60%;top:58%">
+            <div class="pin-inner">R$ 95</div>
+          </div>
+          <div class="pin" style="left:26%;top:68%">
+            <div class="pin-inner">R$ 130</div>
+          </div>
+          <div class="pin" style="left:68%;top:36%">
+            <div class="pin-inner">R$ 85</div>
+          </div>
+          <div class="pin" style="left:50%;top:75%">
+            <div class="pin-inner">R$ 100</div>
+          </div>
+          <div class="pin" style="left:80%;top:52%">
+            <div class="pin-inner">R$ 120</div>
+          </div>
+
+          <!-- Zoom -->
+          <div class="map-zoom">
+            <button class="zoom-btn">+</button>
+            <button class="zoom-btn">−</button>
+          </div>
+
+          <!-- Bottom sheet -->
+          <div class="sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-content">
+              <div class="sheet-photo">
+                <svg viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <ellipse cx="40" cy="30" rx="18" ry="20" fill="rgba(0,0,0,.18)"/>
+                  <path d="M5 100 Q5 62 40 58 Q75 62 75 100Z" fill="rgba(0,0,0,.18)"/>
+                </svg>
+              </div>
+              <div class="sheet-info">
+                <div class="sheet-name">Carlos Eduardo Mendes</div>
+                <div class="sheet-meta">Vila Madalena · R$ 110/aula · Verificado · Com seguro</div>
+              </div>
+              <div>
+                <div class="sheet-aprovo">5,8</div>
+                <div class="sheet-aprovo-label">Aprovômetro</div>
+              </div>
+              <button class="sheet-cta">Agendar aula</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

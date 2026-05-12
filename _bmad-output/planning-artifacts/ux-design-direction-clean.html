@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViaLivre — Clean Direction</title>
+<style>
+
+/* ── Tokens ── */
+:root {
+  --green:       oklch(55% 0.18 145);
+  --green-light: oklch(95% 0.04 145);
+  --green-mid:   oklch(88% 0.08 145);
+  --green-text:  oklch(38% 0.14 145);
+
+  --ink:     #1a1a1a;
+  --ink-2:   #555;
+  --ink-3:   #888;
+  --ink-4:   #bbb;
+
+  --bg:      #fff;
+  --bg-2:    #f7f7f7;
+  --bg-3:    #f0f0f0;
+  --border:  #e4e4e4;
+  --border-2:#efefef;
+
+  --shadow-sm:   0 1px 2px rgba(0,0,0,.08);
+  --shadow-card: 0 2px 8px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
+  --shadow-hover:0 4px 20px rgba(0,0,0,.12), 0 0 0 1px rgba(0,0,0,.06);
+
+  --r-sm:  6px;
+  --r-md:  12px;
+  --r-lg:  16px;
+  --r-xl:  24px;
+
+  --serif: Georgia, 'Times New Roman', serif;
+  --sans:  -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --mono:  'Courier New', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: var(--sans); background: #e8e8e8; }
+
+/* ── Shell ── */
+.shell {
+  max-width: 1320px;
+  margin: 48px auto;
+  padding: 0 32px;
+}
+
+.frame-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 0 4px;
+}
+.frame-label .tag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  background: #fff;
+  color: var(--ink-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 10px;
+}
+.frame-label p {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.browser {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,.22), 0 0 0 1px rgba(0,0,0,.12);
+}
+.chrome {
+  background: #ececec;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #d8d8d8;
+}
+.dots { display: flex; gap: 6px; }
+.dot  { width: 12px; height: 12px; border-radius: 50%; }
+.dot-r { background: #ff5f57; }
+.dot-y { background: #ffbd2e; }
+.dot-g { background: #28ca41; }
+.url {
+  flex: 1;
+  max-width: 360px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--ink-2);
+  text-align: center;
+  border: 1px solid #d5d5d5;
+}
+
+/* ════════════════════════════════
+   PRODUCT UI
+════════════════════════════════ */
+.product {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  height: 680px;
+  overflow: hidden;
+}
+
+/* ── NAV ── */
+.nav {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  height: 64px;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.logo {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: -.02em;
+  margin-right: 32px;
+  flex-shrink: 0;
+}
+
+/* Airbnb-style search pill in nav */
+.nav-search {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: box-shadow .15s;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.nav-search:hover { box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.ns-part {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 18px;
+  border-right: 1px solid var(--border);
+}
+.ns-part:last-of-type { border-right: none; }
+.ns-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: .01em;
+}
+.ns-value {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 1px;
+}
+.ns-btn {
+  background: var(--green);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 15px;
+  color: #fff;
+}
+
+.nav-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background .12s;
+  white-space: nowrap;
+}
+.nav-link:hover { background: var(--bg-2); }
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 5px 5px 5px 14px;
+  cursor: pointer;
+  transition: box-shadow .15s;
+}
+.nav-user:hover { box-shadow: 0 2px 10px rgba(0,0,0,.1); }
+.nav-user-text { font-size: 13px; font-weight: 500; color: var(--ink); }
+.nav-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--bg-3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 56px;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+
+.filter-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0 20px;
+  height: 100%;
+  justify-content: center;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  flex-shrink: 0;
+  transition: border-color .15s;
+}
+.filter-tab:hover { border-color: var(--border); }
+.filter-tab.active { border-color: var(--ink); }
+.filter-tab-icon { font-size: 18px; color: var(--ink-3); }
+.filter-tab.active .filter-tab-icon { color: var(--ink); }
+.filter-tab-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.filter-tab.active .filter-tab-label { color: var(--ink); }
+
+.filter-divider { width: 1px; height: 24px; background: var(--border); margin: 0 8px; flex-shrink: 0; }
+
+.filter-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--bg);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.filter-pill-btn:hover { border-color: var(--ink-4); }
+
+/* ── SPLIT VIEW ── */
+.split {
+  display: grid;
+  grid-template-columns: minmax(360px, 42%) 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── LIST SIDE ── */
+.list-side {
+  overflow-y: auto;
+  background: var(--bg);
+  padding: 24px 20px;
+}
+.list-side::-webkit-scrollbar { width: 6px; }
+.list-side::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 3px; }
+
+.list-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.list-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -.02em;
+}
+.list-count {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+/* ── INSTRUCTOR CARD ── */
+.icard {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 24px;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 100%;
+  gap: 0;
+  position: relative;
+  transition: opacity .15s;
+}
+.icard:not(:last-child) {
+  border-bottom: 1px solid var(--border-2);
+  margin-bottom: 24px;
+}
+.icard:hover { opacity: .95; }
+
+.icard-photos {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 10px;
+  height: 180px;
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  gap: 3px;
+  background: var(--border);
+  position: relative;
+}
+.photo-main {
+  background: linear-gradient(160deg, #f0ede8, #e4e0d8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  position: relative;
+}
+.photo-main::after {
+  content: 'Instrutor';
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: rgba(0,0,0,.45);
+  background: rgba(255,255,255,.75);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.photo-side {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.photo-car {
+  flex: 1;
+  background: linear-gradient(160deg, #e8ecf0, #d8dfe8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  position: relative;
+}
+.photo-car::after {
+  content: 'Carro';
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: rgba(0,0,0,.4);
+  background: rgba(255,255,255,.72);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.photo-extra {
+  height: 56px;
+  background: linear-gradient(160deg, #edeae4, #e2dfd6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+/* heart button */
+.icard-heart {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  background: rgba(255,255,255,.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* badges over photo */
+.icard-badges {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 5px;
+  z-index: 2;
+}
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+.badge-verified {
+  background: rgba(255,255,255,.92);
+  color: var(--ink);
+  border: 1px solid rgba(0,0,0,.08);
+}
+.badge-insurance {
+  background: rgba(255,255,255,.92);
+  color: #2563eb;
+  border: 1px solid rgba(37,99,235,.15);
+}
+.badge-new {
+  background: rgba(255,255,255,.92);
+  color: #b45309;
+  border: 1px solid rgba(180,83,9,.15);
+}
+
+/* card info */
+.icard-info { padding: 0; }
+
+.icard-row1 {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 3px;
+}
+.icard-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+.icard-stars {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.icard-stars .val { color: var(--ink); font-weight: 600; }
+.icard-stars .cnt { color: var(--ink-3); font-size: 12px; }
+.star-icon { font-size: 12px; }
+
+.icard-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-bottom: 10px;
+}
+
+/* aprovômetro — clean */
+.aprovo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--green-light);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--green-mid);
+  margin-bottom: 10px;
+}
+.aprovo-num {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--green-text);
+  letter-spacing: -.03em;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.aprovo-right { flex: 1; min-width: 0; }
+.aprovo-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--green-text);
+  opacity: .7;
+  margin-bottom: 4px;
+}
+.aprovo-desc {
+  font-size: 12px;
+  color: var(--green-text);
+  opacity: .8;
+}
+.aprovo-track {
+  height: 4px;
+  background: var(--green-mid);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+.aprovo-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+}
+
+.icard-price {
+  font-size: 14px;
+  color: var(--ink);
+}
+.icard-price strong {
+  font-weight: 700;
+  font-size: 15px;
+}
+.icard-price .underline {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── MAP SIDE ── */
+.map-side {
+  position: relative;
+  background: #e5ede4;
+  overflow: hidden;
+}
+.map-bg {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(rgba(205,220,205,.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(205,220,205,.4) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-color: #e8f0e5;
+}
+
+.road { position: absolute; background: #fff; }
+.road-h {
+  left: 0; right: 0;
+  box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 -1px 0 rgba(0,0,0,.04);
+}
+.road-v {
+  top: 0; bottom: 0;
+  box-shadow: 1px 0 0 rgba(0,0,0,.04), -1px 0 0 rgba(0,0,0,.04);
+}
+.road-sm-h { height: 7px; }
+.road-sm-v { width: 7px; }
+.road-md-h { height: 12px; }
+.road-md-v { width: 12px; }
+
+/* map pins */
+.mpin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  z-index: 2;
+  cursor: pointer;
+}
+.pin-bubble {
+  background: var(--ink);
+  color: #fff;
+  border-radius: 24px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--mono);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,.22);
+  position: relative;
+  letter-spacing: -.02em;
+  transition: transform .12s;
+}
+.pin-bubble:hover { transform: scale(1.05); }
+.pin-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+  border-bottom: none;
+}
+.pin-bubble.active {
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: 0 0 0 2px var(--ink), 0 4px 16px rgba(0,0,0,.2);
+}
+.pin-bubble.active::after { border-top-color: var(--bg); }
+/* small price pin */
+.pin-price {
+  background: #fff;
+  color: var(--ink);
+  border: 1.5px solid rgba(0,0,0,.12);
+  border-radius: 20px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 1px 6px rgba(0,0,0,.1);
+  position: relative;
+  transition: transform .12s, box-shadow .12s;
+}
+.pin-price:hover { transform: scale(1.05); box-shadow: 0 3px 12px rgba(0,0,0,.16); }
+.pin-price::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #fff;
+  border-bottom: none;
+}
+.pin-price.active {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(0,0,0,.25);
+}
+.pin-price.active::after { border-top-color: var(--ink); }
+
+/* map controls */
+.map-top {
+  position: absolute;
+  top: 14px; left: 14px; right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+}
+.map-search {
+  flex: 1;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 32px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.1);
+}
+.map-search span { font-size: 14px; }
+.map-search-text { color: var(--ink-3); font-size: 13px; }
+.map-search-divider { width: 1px; height: 16px; background: var(--border); margin: 0 2px; }
+.map-search-where { font-size: 13px; color: var(--ink); font-weight: 500; }
+
+.map-chip {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 1px 6px rgba(0,0,0,.08);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.map-bottom {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+.map-toggle {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 24px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  box-shadow: 0 2px 10px rgba(0,0,0,.12);
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.map-toggle .icon { font-size: 15px; }
+
+.map-zoom {
+  position: absolute;
+  bottom: 56px; right: 14px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  z-index: 3;
+}
+.zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--ink);
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 1px solid var(--border);
+  line-height: 1;
+}
+.zoom-btn:last-child { border-bottom: none; }
+
+/* ── BOTTOM SHEET (mobile preview) ── */
+.sheet {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -2px 24px rgba(0,0,0,.1);
+  padding: 0 20px 16px;
+  z-index: 4;
+  transform: translateY(calc(100% - 80px));
+}
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  margin: 12px auto 14px;
+}
+.sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sheet-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #f0ede8, #e4e0d8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,.06);
+}
+.sheet-copy { flex: 1; }
+.sheet-name { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: -.01em; }
+.sheet-sub  { font-size: 12px; color: var(--ink-3); }
+.sheet-aprovo {
+  text-align: right;
+  flex-shrink: 0;
+}
+.sheet-aprovo-num {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--green-text);
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+.sheet-aprovo-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.sheet-cta {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  letter-spacing: -.01em;
+}
+
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="frame-label">
+    <div class="tag">Direção Clean</div>
+    <p>Fundo branco · Verde só em Aprovômetro e CTA · Estrutura Airbnb</p>
+  </div>
+
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+      </div>
+      <div class="url">vialivre.com.br/instrutores</div>
+    </div>
+
+    <div class="product">
+
+      <!-- NAV -->
+      <nav class="nav">
+        <div class="logo">ViaLivre</div>
+
+        <!-- Airbnb-style nav search -->
+        <div class="nav-search">
+          <div class="ns-part">
+            <span class="ns-label">Onde</span>
+            <span class="ns-value">Vila Madalena, SP</span>
+          </div>
+          <div class="ns-part">
+            <span class="ns-label">Categoria</span>
+            <span class="ns-value">Auto · Moto</span>
+          </div>
+          <div class="ns-part">
+            <span class="ns-label">Aprovômetro</span>
+            <span class="ns-value">Qualquer</span>
+          </div>
+          <button class="ns-btn">🔍</button>
+        </div>
+
+        <div class="nav-end">
+          <div class="nav-link">Para instrutores</div>
+          <div class="nav-user">
+            <span class="nav-user-text">Entrar</span>
+            <div class="nav-avatar">☰</div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <div class="filter-tab active">
+          <span class="filter-tab-icon">🚗</span>
+          <span class="filter-tab-label">Auto</span>
+        </div>
+        <div class="filter-tab">
+          <span class="filter-tab-icon">🏍</span>
+          <span class="filter-tab-label">Moto</span>
+        </div>
+        <div class="filter-tab">
+          <span class="filter-tab-icon">🛡</span>
+          <span class="filter-tab-label">Com seguro</span>
+        </div>
+        <div class="filter-tab">
+          <span class="filter-tab-icon">⭐</span>
+          <span class="filter-tab-label">Avaliação 4.8+</span>
+        </div>
+        <div class="filter-tab">
+          <span class="filter-tab-icon">📅</span>
+          <span class="filter-tab-label">Fim de semana</span>
+        </div>
+        <div class="filter-tab">
+          <span class="filter-tab-icon">🚘</span>
+          <span class="filter-tab-label">Automático</span>
+        </div>
+        <div class="filter-tab">
+          <span class="filter-tab-icon">🆕</span>
+          <span class="filter-tab-label">Novos instrutores</span>
+        </div>
+        <div class="filter-divider"></div>
+        <button class="filter-pill-btn">
+          ⚙ Filtros
+        </button>
+      </div>
+
+      <!-- SPLIT -->
+      <div class="split">
+
+        <!-- LIST -->
+        <div class="list-side">
+          <div class="list-header">
+            <span class="list-title">Instrutores próximos</span>
+            <span class="list-count">34 resultados</span>
+          </div>
+
+          <!-- Card 1 -->
+          <div class="icard">
+            <div class="icard-photos">
+              <div class="photo-main">👨‍🏫</div>
+              <div class="photo-side">
+                <div class="photo-car">🚗</div>
+                <div class="photo-extra">🛣️</div>
+              </div>
+              <div class="icard-badges">
+                <span class="badge badge-verified">✓ DETRAN</span>
+                <span class="badge badge-insurance">🛡 Seguro</span>
+              </div>
+              <div class="icard-heart">♡</div>
+            </div>
+            <div class="icard-info">
+              <div class="icard-row1">
+                <span class="icard-name">Carlos Eduardo Mendes</span>
+                <div class="icard-stars">
+                  <span class="star-icon">★</span>
+                  <span class="val">4,9</span>
+                  <span class="cnt">(47)</span>
+                </div>
+              </div>
+              <div class="icard-sub">Auto · Vila Madalena · 1,2 km</div>
+              <div class="aprovo">
+                <div class="aprovo-num">5,8</div>
+                <div class="aprovo-right">
+                  <div class="aprovo-label">Aprovômetro</div>
+                  <div class="aprovo-desc">aulas em média · 47 alunos</div>
+                  <div class="aprovo-track"><div class="aprovo-fill" style="width:80%"></div></div>
+                </div>
+              </div>
+              <div class="icard-price">
+                <span class="underline"><strong>R$ 110</strong></span> por aula
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="icard">
+            <div class="icard-photos">
+              <div class="photo-main" style="background:linear-gradient(160deg,#ede8f0,#e0d8e4)">👩‍🏫</div>
+              <div class="photo-side">
+                <div class="photo-car" style="background:linear-gradient(160deg,#e8ecf0,#d8dfe8)">🚙</div>
+                <div class="photo-extra" style="background:linear-gradient(160deg,#ebe8ed,#ddd8e2)">🌆</div>
+              </div>
+              <div class="icard-badges">
+                <span class="badge badge-verified">✓ DETRAN</span>
+              </div>
+              <div class="icard-heart">♡</div>
+            </div>
+            <div class="icard-info">
+              <div class="icard-row1">
+                <span class="icard-name">Fernanda Lima</span>
+                <div class="icard-stars">
+                  <span class="star-icon">★</span>
+                  <span class="val">4,7</span>
+                  <span class="cnt">(31)</span>
+                </div>
+              </div>
+              <div class="icard-sub">Auto · Pinheiros · 2,1 km</div>
+              <div class="aprovo">
+                <div class="aprovo-num">7,1</div>
+                <div class="aprovo-right">
+                  <div class="aprovo-label">Aprovômetro</div>
+                  <div class="aprovo-desc">aulas em média · 31 alunos</div>
+                  <div class="aprovo-track"><div class="aprovo-fill" style="width:62%"></div></div>
+                </div>
+              </div>
+              <div class="icard-price">
+                <span class="underline"><strong>R$ 95</strong></span> por aula
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="icard">
+            <div class="icard-photos">
+              <div class="photo-main" style="background:linear-gradient(160deg,#e8ede8,#d8e4d8)">👨</div>
+              <div class="photo-side">
+                <div class="photo-car" style="background:linear-gradient(160deg,#eaece8,#dce0d8)">🚕</div>
+                <div class="photo-extra" style="background:linear-gradient(160deg,#ebecea,#dde0d8)">🌳</div>
+              </div>
+              <div class="icard-badges">
+                <span class="badge badge-verified">✓ DETRAN</span>
+                <span class="badge badge-insurance">🛡 Seguro</span>
+              </div>
+              <div class="icard-heart">♡</div>
+            </div>
+            <div class="icard-info">
+              <div class="icard-row1">
+                <span class="icard-name">Marcos Silva</span>
+                <div class="icard-stars">
+                  <span class="star-icon">★</span>
+                  <span class="val">4,95</span>
+                  <span class="cnt">(89)</span>
+                </div>
+              </div>
+              <div class="icard-sub">Auto · Lapa · 3,4 km</div>
+              <div class="aprovo">
+                <div class="aprovo-num" style="color:oklch(35% 0.14 145)">4,2</div>
+                <div class="aprovo-right">
+                  <div class="aprovo-label">Aprovômetro</div>
+                  <div class="aprovo-desc">aulas em média · 89 alunos</div>
+                  <div class="aprovo-track"><div class="aprovo-fill" style="width:92%"></div></div>
+                </div>
+              </div>
+              <div class="icard-price">
+                <span class="underline"><strong>R$ 130</strong></span> por aula
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- MAP -->
+        <div class="map-side">
+          <div class="map-bg"></div>
+
+          <!-- Roads -->
+          <div class="road road-h road-md-h" style="top:32%"></div>
+          <div class="road road-h road-sm-h" style="top:50%"></div>
+          <div class="road road-h road-md-h" style="top:67%"></div>
+          <div class="road road-h road-sm-h" style="top:80%"></div>
+          <div class="road road-v road-sm-v" style="left:18%"></div>
+          <div class="road road-v road-md-v" style="left:38%"></div>
+          <div class="road road-v road-sm-v" style="left:60%"></div>
+          <div class="road road-v road-md-v" style="left:75%"></div>
+
+          <!-- Pins -->
+          <div class="mpin" style="left:40%; top:45%">
+            <div class="pin-bubble active">Carlos · R$ 110</div>
+          </div>
+          <div class="mpin" style="left:60%; top:57%">
+            <div class="pin-price">Fernanda · R$ 95</div>
+          </div>
+          <div class="mpin" style="left:28%; top:66%">
+            <div class="pin-price">Marcos · R$ 130</div>
+          </div>
+          <div class="mpin" style="left:70%; top:36%">
+            <div class="pin-price">Paulo · R$ 85</div>
+          </div>
+          <div class="mpin" style="left:50%; top:76%">
+            <div class="pin-price">Ana · R$ 100</div>
+          </div>
+          <div class="mpin" style="left:82%; top:54%">
+            <div class="pin-price">Renata · R$ 120</div>
+          </div>
+
+          <!-- Map top controls -->
+          <div class="map-top">
+            <div class="map-search">
+              <span>📍</span>
+              <span class="map-search-where">Vila Madalena</span>
+              <div class="map-search-divider"></div>
+              <span class="map-search-text">Auto · Qualquer faixa</span>
+            </div>
+            <div class="map-chip">🔍 Nessa área</div>
+          </div>
+
+          <!-- Bottom sheet -->
+          <div class="sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-row">
+              <div class="sheet-avatar">👨‍🏫</div>
+              <div class="sheet-copy">
+                <div class="sheet-name">Carlos Eduardo Mendes</div>
+                <div class="sheet-sub">Vila Madalena · R$ 110/aula · ✓ DETRAN · 🛡 Seguro</div>
+              </div>
+              <div class="sheet-aprovo">
+                <div class="sheet-aprovo-num">5,8</div>
+                <div class="sheet-aprovo-label">Aprovômetro</div>
+              </div>
+              <button class="sheet-cta">Agendar</button>
+            </div>
+          </div>
+
+          <!-- Zoom -->
+          <div class="map-zoom">
+            <button class="zoom-btn">+</button>
+            <button class="zoom-btn">−</button>
+          </div>
+
+          <!-- Toggle -->
+          <div class="map-bottom">
+            <div class="map-toggle">
+              <span class="icon">☰</span> Lista / Mapa
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

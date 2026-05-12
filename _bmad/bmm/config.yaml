@@ -11,6 +11,6 @@ project_knowledge: "{project-root}/docs"
 # Core Configuration Values
 user_name: Wmoraes
 project_name: via-livre
-communication_language: English
-document_output_language: English
+communication_language: Portuguese (PT-BR)
+document_output_language: Portuguese (PT-BR)
 output_folder: _bmad-output

@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    name: Lint, typecheck & build
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/viaLivre_test"
+      DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/viaLivre_test"
+      AUTH_SECRET: "ci-secret-not-real"
+      AUTH_URL: "http://localhost:3000"
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "placeholder"
+      STRIPE_SECRET_KEY: "sk_test_placeholder"
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_placeholder"
+      STRIPE_WEBHOOK_SECRET: "whsec_placeholder"
+      SUPABASE_URL: "https://placeholder.supabase.co"
+      SUPABASE_SERVICE_ROLE_KEY: "placeholder"
+      SUPABASE_STORAGE_BUCKET: "compliance-documents"
+      RESEND_API_KEY: "re_placeholder"
+      UPSTASH_REDIS_REST_URL: "https://placeholder.upstash.io"
+      UPSTASH_REDIS_REST_TOKEN: "placeholder"
+      QSTASH_TOKEN: "placeholder"
+      QSTASH_CURRENT_SIGNING_KEY: "placeholder"
+      QSTASH_NEXT_SIGNING_KEY: "placeholder"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Validate Prisma schema
+        run: npx prisma validate
+
+      - name: Build
+        run: npm run build

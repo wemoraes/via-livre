@@ -5,3 +5,335 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum InstructorStatus {
+  PENDING
+  UNDER_REVIEW
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum DocumentType {
+  CNH_EAR
+  SENATRAN_CREDENTIAL
+  CRIMINAL_CERTIFICATE
+  TAX_CERTIFICATE
+  CRLV
+}
+
+enum DocumentStatus {
+  PENDING
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum LessonStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+}
+
+enum ExamResult {
+  PASSED
+  FAILED
+}
+
+enum VehicleCategory {
+  AUTO
+  MOTO
+}
+
+enum AuditAction {
+  DOCUMENT_APPROVED
+  DOCUMENT_REJECTED
+  DOCUMENT_RESUBMIT_REQUESTED
+  INSTRUCTOR_SUSPENDED
+  INSTRUCTOR_ACTIVATED
+  RATING_REMOVED
+  USER_BANNED
+}
+
+// ─── Core ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  password      String?   // null when using magic link
+  role          UserRole  @default(STUDENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  instructorProfile InstructorProfile?
+  studentProfile    StudentProfile?
+  sessionsAuth      Session[]
+  accounts          Account[]
+  ratingsGiven      Rating[]   @relation("RatingAuthor")
+  ratingsReceived   Rating[]   @relation("RatingTarget")
+  auditLogs         AuditLog[]
+
+  @@index([email])
+  @@index([role])
+}
+
+// Auth.js v5 required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Profiles ─────────────────────────────────────────────────────────────────
+
+model StudentProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  phone     String?
+  city      String?
+  state     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessons Lesson[] @relation("StudentLessons")
+}
+
+model InstructorProfile {
+  id             String           @id @default(cuid())
+  userId         String           @unique
+  status         InstructorStatus @default(PENDING)
+  bio            String?
+  phone          String?
+  profileImage   String?          // Supabase Storage path
+  pricePerLesson Decimal          @db.Decimal(10, 2)
+  serviceRadius  Int              @default(10) // km
+  lat            Float?
+  lng            Float?
+  city           String?
+  state          String?
+  areas          String[]         // bairros/áreas de atuação
+
+  // Aprovômetro — calculado automaticamente após >= 5 alunos distintos
+  aprovometro      Float?  // média de aulas até aprovação; null = Novo Instrutor
+  aprovometroCount Int     @default(0) // número de amostras
+  totalLessons     Int     @default(0)
+  avgRating        Float?
+
+  // Stripe Connect
+  stripeAccountId    String? @unique
+  stripeOnboardingDone Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicles     Vehicle[]
+  documents    Document[]
+  lessons      Lesson[]      @relation("InstructorLessons")
+  availability Availability[]
+
+  @@index([status])
+  @@index([lat, lng])
+  @@index([pricePerLesson])
+  @@index([avgRating])
+}
+
+// ─── Compliance Documents ─────────────────────────────────────────────────────
+
+model Document {
+  id           String         @id @default(cuid())
+  instructorId String
+  type         DocumentType
+  status       DocumentStatus @default(PENDING)
+  storageKey   String?        // Supabase Storage path — never expose directly
+  expiresAt    DateTime?
+  reviewedBy   String?        // adminId
+  reviewNote   String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  instructor InstructorProfile @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
+  @@unique([instructorId, type]) // one document per type per instructor
+  @@index([instructorId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+// ─── Vehicles ─────────────────────────────────────────────────────────────────
+
+model Vehicle {
+  id           String          @id @default(cuid())
+  instructorId String
+  plate        String          @unique
+  brand        String
+  model        String
+  year         Int
+  color        String
+  category     VehicleCategory @default(AUTO)
+  photoKey     String?         // Supabase Storage path
+  crlvKey      String?         // Supabase Storage path
+  isPrimary    Boolean         @default(false)
+  active       Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  instructor InstructorProfile @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+  lessons    Lesson[]
+
+  @@index([instructorId])
+}
+
+// ─── Availability ─────────────────────────────────────────────────────────────
+
+model Availability {
+  id           String   @id @default(cuid())
+  instructorId String
+  dayOfWeek    Int      // 0 = Sunday, 6 = Saturday
+  startTime    String   // "08:00"
+  endTime      String   // "18:00"
+  active       Boolean  @default(true)
+
+  instructor InstructorProfile @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
+  @@unique([instructorId, dayOfWeek, startTime])
+  @@index([instructorId])
+}
+
+// ─── Lessons ──────────────────────────────────────────────────────────────────
+
+model Lesson {
+  id           String       @id @default(cuid())
+  studentId    String
+  instructorId String
+  vehicleId    String
+  status       LessonStatus @default(PENDING)
+  scheduledAt  DateTime
+  durationMin  Int          @default(60)
+  meetingPoint String
+  priceAmount  Decimal      @db.Decimal(10, 2)
+
+  // Escrow
+  escrowStatus          EscrowStatus @default(HELD)
+  stripePaymentIntentId String?
+  stripeTransferId      String?
+
+  // Confirmation (both parties must confirm to release escrow)
+  studentConfirmed    Boolean @default(false)
+  instructorConfirmed Boolean @default(false)
+
+  // Aprovômetro
+  examResult ExamResult? // set by student after exam; feeds Aprovômetro calculation
+
+  // Cancellation
+  cancelledBy  String?
+  cancelReason String?
+  cancelledAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student    StudentProfile    @relation("StudentLessons", fields: [studentId], references: [id])
+  instructor InstructorProfile @relation("InstructorLessons", fields: [instructorId], references: [id])
+  vehicle    Vehicle           @relation(fields: [vehicleId], references: [id])
+  rating     Rating?
+
+  @@index([studentId])
+  @@index([instructorId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([stripePaymentIntentId])
+}
+
+// ─── Ratings ──────────────────────────────────────────────────────────────────
+
+model Rating {
+  id       String   @id @default(cuid())
+  lessonId String   @unique // one rating per lesson
+  authorId String   // userId of reviewer
+  targetId String   // userId of reviewed
+  role     UserRole // role of the author (STUDENT rated instructor, or INSTRUCTOR rated student)
+  score    Int      // 1–5
+  comment  String?
+  createdAt DateTime @default(now())
+
+  lesson  Lesson @relation(fields: [lessonId], references: [id])
+  author  User   @relation("RatingAuthor", fields: [authorId], references: [id])
+  target  User   @relation("RatingTarget", fields: [targetId], references: [id])
+
+  @@index([targetId])
+  @@index([authorId])
+}
+
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  adminId    String
+  action     AuditAction
+  targetType String      // "Document" | "InstructorProfile" | "User" | "Rating"
+  targetId   String
+  note       String?
+  createdAt  DateTime    @default(now())
+
+  admin User @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([targetId])
+  @@index([createdAt])
+}

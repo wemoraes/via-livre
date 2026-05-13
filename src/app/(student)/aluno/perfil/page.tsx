@@ -1,29 +1,47 @@
-import { User } from "lucide-react";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { getStudentProfileData } from "./_data/profile";
+import AvatarUpload from "./_components/AvatarUpload";
+import ProfileForm from "./_components/ProfileForm";
 
-export default function StudentPerfilPage() {
+export default async function StudentPerfilPage() {
+  const session = await auth();
+  if (!session?.user) redirect("/entrar");
+
+  const data = await getStudentProfileData(session.user.id);
+
   return (
-    <div className="max-w-3xl">
-      <h1 className="text-2xl font-semibold mb-1" style={{ color: "var(--vl-text-1)" }}>
-        Perfil
-      </h1>
-      <p className="text-sm mb-6" style={{ color: "var(--vl-text-3)" }}>
-        Seus dados pessoais, avatar e preferências.
-      </p>
-
-      <div className="glass-card rounded-2xl p-10 text-center">
-        <span
-          className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3"
-          style={{ background: "rgba(13,18,16,0.06)", color: "var(--vl-text-3)" }}
-        >
-          <User size={22} />
-        </span>
-        <h2 className="text-base font-medium mb-2" style={{ color: "var(--vl-text-1)" }}>
-          Em construção
-        </h2>
-        <p className="text-sm max-w-sm mx-auto" style={{ color: "var(--vl-text-3)" }}>
-          Story 8.1e — Edição de nome, foto/avatar, telefone, preferências e perf budget {"<"} 2s LCP.
+    <div className="max-w-2xl">
+      <header className="mb-6">
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--vl-text-1)" }}>
+          Perfil
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "var(--vl-text-3)" }}>
+          Seus dados pessoais e foto. O email não pode ser alterado.
         </p>
-      </div>
+      </header>
+
+      <section className="glass-card rounded-2xl p-6 mb-6">
+        <h2 className="text-sm font-semibold uppercase tracking-wide mb-4" style={{ color: "var(--vl-text-3)" }}>
+          Foto
+        </h2>
+        <AvatarUpload initialAvatarUrl={data.avatarUrl} initialName={data.name} />
+      </section>
+
+      <section className="glass-card rounded-2xl p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-wide mb-4" style={{ color: "var(--vl-text-3)" }}>
+          Dados pessoais
+        </h2>
+        <ProfileForm
+          initial={{
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            city: data.city,
+            state: data.state,
+          }}
+        />
+      </section>
     </div>
   );
 }

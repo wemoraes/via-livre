@@ -30,3 +30,24 @@ export async function getSignedReadUrl(
   if (error) throw new Error(`Storage read URL error: ${error.message}`);
   return data.signedUrl;
 }
+
+// Avatar uploads — share the same bucket as compliance docs.
+// Signed read URLs have TTL of 1 year (31_536_000s) — when expired,
+// users can re-upload via /aluno/perfil. Future: migrate to public `avatars` bucket.
+const AVATAR_READ_TTL_SECONDS = 31_536_000;
+
+export async function getSignedAvatarUploadUrl(
+  userId: string,
+  ext: string,
+): Promise<{ signedUrl: string; path: string }> {
+  const path = `avatars/${userId}/${Date.now()}.${ext}`;
+  const { data, error } = await supabaseAdmin.storage
+    .from(BUCKET)
+    .createSignedUploadUrl(path);
+  if (error) throw new Error(`Storage upload URL error: ${error.message}`);
+  return { signedUrl: data.signedUrl, path };
+}
+
+export async function getAvatarReadUrl(storagePath: string): Promise<string> {
+  return getSignedReadUrl(storagePath, AVATAR_READ_TTL_SECONDS);
+}

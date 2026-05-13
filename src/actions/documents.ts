@@ -42,6 +42,7 @@ export async function getSignedDocumentUploadUrl(
 export async function saveDocumentMetadata(input: {
   documentType: DocumentType;
   storagePath: string;
+  expiresAt?: string;
 }): Promise<ActionResult<{ documentId: string }>> {
   const session = await auth();
   if (!session?.user || session.user.role !== "INSTRUCTOR") {
@@ -54,6 +55,8 @@ export async function saveDocumentMetadata(input: {
   });
   if (!profile) return err("Perfil de instrutor não encontrado");
 
+  const expiresAt = input.expiresAt ? new Date(input.expiresAt) : undefined;
+
   const document = await prisma.document.upsert({
     where: { instructorId_type: { instructorId: profile.id, type: input.documentType } },
     create: {
@@ -61,11 +64,13 @@ export async function saveDocumentMetadata(input: {
       type: input.documentType,
       status: DocumentStatus.SUBMITTED,
       storageKey: input.storagePath,
+      expiresAt,
     },
     update: {
       storageKey: input.storagePath,
       status: DocumentStatus.SUBMITTED,
       reviewNote: null,
+      expiresAt,
     },
   });
 

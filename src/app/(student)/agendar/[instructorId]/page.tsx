@@ -34,17 +34,7 @@ function generateSlots(startTime: string, endTime: string, durationMin = 60): st
   return slots;
 }
 
-// ─── Payment step ─────────────────────────────────────────────────────────────
-
-function PaymentStep({
-  clientSecret,
-  lessonId,
-  price,
-}: {
-  clientSecret: string;
-  lessonId: string;
-  price: number;
-}) {
+function PaymentStep({ clientSecret, lessonId, price }: { clientSecret: string; lessonId: string; price: number }) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -58,22 +48,20 @@ function PaymentStep({
 
     const { error: stripeError } = await stripe.confirmPayment({
       elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/aulas/${lessonId}?booked=1`,
-      },
+      confirmParams: { return_url: `${window.location.origin}/aulas/${lessonId}?booked=1` },
     });
 
     if (stripeError) {
       setError(stripeError.message ?? "Erro no pagamento.");
       setIsPaying(false);
     }
-    // On success, Stripe redirects to return_url automatically
   }
 
   return (
     <div className="space-y-5">
-      <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-600">
-        Total a pagar: <span className="font-bold text-gray-900">R$ {price.toFixed(2)}</span>
+      <div className="rounded-xl p-4 text-sm" style={{ background: "rgba(13,18,16,0.04)", color: "var(--vl-text-2)" }}>
+        Total a pagar:{" "}
+        <span className="font-bold" style={{ color: "var(--vl-text-1)" }}>R$ {price.toFixed(2)}</span>
       </div>
 
       <PaymentElement />
@@ -92,8 +80,6 @@ function PaymentStep({
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
-
 export default function AgendarPage({ params }: Props) {
   const { instructorId } = use(params);
   const router = useRouter();
@@ -101,16 +87,12 @@ export default function AgendarPage({ params }: Props) {
   const [instructor, setInstructor] = useState<(InstructorSearchResult & { areas: string[] }) | null>(null);
   const [availability, setAvailability] = useState<{ dayOfWeek: number; startTime: string; endTime: string }[]>([]);
   const [bookedSlots, setBookedSlots] = useState<{ scheduledAt: string; durationMin: number }[]>([]);
-
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState("");
   const [meetingPoint, setMeetingPoint] = useState("");
   const [error, setError] = useState("");
-
-  // After booking: show payment
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [lessonId, setLessonId] = useState<string | null>(null);
-
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -124,19 +106,14 @@ export default function AgendarPage({ params }: Props) {
     });
   }, [instructorId]);
 
-  const loadBookedSlots = useCallback(
-    (date: Date) => {
-      const from = new Date(date);
-      from.setHours(0, 0, 0, 0);
-      const to = new Date(date);
-      to.setHours(23, 59, 59, 999);
-      startTransition(async () => {
-        const res = await getBookedSlots(instructorId, from, to);
-        if (res.success) setBookedSlots(res.data);
-      });
-    },
-    [instructorId],
-  );
+  const loadBookedSlots = useCallback((date: Date) => {
+    const from = new Date(date); from.setHours(0, 0, 0, 0);
+    const to = new Date(date); to.setHours(23, 59, 59, 999);
+    startTransition(async () => {
+      const res = await getBookedSlots(instructorId, from, to);
+      if (res.success) setBookedSlots(res.data);
+    });
+  }, [instructorId]);
 
   useEffect(() => {
     if (selectedDate) loadBookedSlots(selectedDate);
@@ -153,9 +130,7 @@ export default function AgendarPage({ params }: Props) {
   }
 
   const slotsForDate = selectedDate
-    ? availability
-        .filter((a) => a.dayOfWeek === selectedDate.getDay())
-        .flatMap((a) => generateSlots(a.startTime, a.endTime))
+    ? availability.filter((a) => a.dayOfWeek === selectedDate.getDay()).flatMap((a) => generateSlots(a.startTime, a.endTime))
     : [];
 
   const bookedTimes = new Set(
@@ -171,12 +146,10 @@ export default function AgendarPage({ params }: Props) {
       return;
     }
     setError("");
-
     const scheduledAt = new Date(selectedDate);
     const [h, m] = selectedTime.split(":").map(Number);
     scheduledAt.setHours(h, m, 0, 0);
 
-    // Need a vehicle — fetch first active vehicle of instructor
     startTransition(async () => {
       const result = await bookLesson({
         instructorId,
@@ -184,12 +157,7 @@ export default function AgendarPage({ params }: Props) {
         durationMin: 60,
         meetingPoint: meetingPoint.trim(),
       });
-
-      if (!result.success) {
-        setError(result.error);
-        return;
-      }
-
+      if (!result.success) { setError(result.error); return; }
       setLessonId(result.data.lessonId);
       setClientSecret(result.data.clientSecret);
     });
@@ -197,53 +165,58 @@ export default function AgendarPage({ params }: Props) {
 
   if (!instructor) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[oklch(55%_0.17_145)] border-t-transparent rounded-full animate-spin" />
-      </div>
+      <main className="min-h-screen flex items-center justify-center">
+        <div aria-hidden className="vl-mesh" />
+        <div
+          className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
+          style={{ borderColor: "var(--vl-accent) transparent var(--vl-accent) var(--vl-accent)" }}
+        />
+      </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-xl mx-auto px-4 py-10">
+    <main
+      className="min-h-screen py-10 px-4"
+      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
+    >
+      <div aria-hidden className="vl-mesh" />
+
+      <div className="max-w-xl mx-auto">
         <Link
           href={`/instrutores/${instructorId}`}
-          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-8"
+          className="inline-flex items-center gap-1 text-sm mb-8 hover:opacity-70"
+          style={{ color: "var(--vl-text-3)" }}
         >
           <ArrowLeft size={14} />
           Voltar ao perfil
         </Link>
 
-        <h1 className="text-2xl font-semibold text-gray-900 mb-1">Agendar aula</h1>
-        <p className="text-sm text-gray-500 mb-8">
-          com <span className="font-medium text-gray-700">{instructor.name}</span> · R$ {instructor.pricePerLesson}/aula
+        <h1 className="text-2xl font-semibold mb-1" style={{ color: "var(--vl-text-1)" }}>
+          Agendar aula
+        </h1>
+        <p className="text-sm mb-8" style={{ color: "var(--vl-text-3)" }}>
+          com <span className="font-medium" style={{ color: "var(--vl-text-2)" }}>{instructor.name}</span>{" "}
+          · R$ {instructor.pricePerLesson}/aula
         </p>
 
-        {/* Payment step — shown after booking is created */}
         {clientSecret && lessonId ? (
-          <div className="bg-white border border-gray-100 rounded-2xl p-6">
-            <h2 className="text-base font-semibold text-gray-900 mb-5">Pagamento</h2>
-            <Elements
-              stripe={stripePromise}
-              options={{ clientSecret, locale: "pt-BR", appearance: { theme: "stripe" } }}
-            >
-              <PaymentStep
-                clientSecret={clientSecret}
-                lessonId={lessonId}
-                price={instructor.pricePerLesson}
-              />
+          <div className="glass-card rounded-2xl p-6">
+            <h2 className="text-base font-semibold mb-5" style={{ color: "var(--vl-text-1)" }}>Pagamento</h2>
+            <Elements stripe={stripePromise} options={{ clientSecret, locale: "pt-BR", appearance: { theme: "stripe" } }}>
+              <PaymentStep clientSecret={clientSecret} lessonId={lessonId} price={instructor.pricePerLesson} />
             </Elements>
           </div>
         ) : (
           <>
             {/* Date picker */}
             <section className="mb-6">
-              <h2 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+              <h2 className="text-sm font-medium mb-3 flex items-center gap-2" style={{ color: "var(--vl-text-2)" }}>
                 <Calendar size={15} />
                 Escolha a data
               </h2>
               {dateOptions.length === 0 ? (
-                <p className="text-sm text-gray-400">Instrutor sem horários configurados.</p>
+                <p className="text-sm" style={{ color: "var(--vl-text-3)" }}>Instrutor sem horários configurados.</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {dateOptions.slice(0, 14).map((d) => {
@@ -253,11 +226,12 @@ export default function AgendarPage({ params }: Props) {
                         key={d.toISOString()}
                         type="button"
                         onClick={() => { setSelectedDate(d); setSelectedTime(""); }}
-                        className={`flex flex-col items-center px-3 py-2 rounded-xl border text-xs transition-colors ${
-                          isSelected
-                            ? "border-[oklch(55%_0.17_145)] bg-[oklch(55%_0.17_145)] text-white"
-                            : "border-gray-200 text-gray-600 hover:border-gray-300"
-                        }`}
+                        className="flex flex-col items-center px-3 py-2 rounded-xl border text-xs transition-all"
+                        style={{
+                          borderColor: isSelected ? "var(--vl-accent)" : "rgba(13,18,16,0.12)",
+                          background: isSelected ? "var(--vl-accent)" : "rgba(255,255,255,0.55)",
+                          color: isSelected ? "#fff" : "var(--vl-text-2)",
+                        }}
                       >
                         <span className="font-medium">{DAY_NAMES[d.getDay()]}</span>
                         <span>{d.getDate()}/{d.getMonth() + 1}</span>
@@ -271,7 +245,7 @@ export default function AgendarPage({ params }: Props) {
             {/* Time slots */}
             {selectedDate && (
               <section className="mb-6">
-                <h2 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                <h2 className="text-sm font-medium mb-3 flex items-center gap-2" style={{ color: "var(--vl-text-2)" }}>
                   <Clock size={15} />
                   Escolha o horário
                 </h2>
@@ -285,13 +259,14 @@ export default function AgendarPage({ params }: Props) {
                         type="button"
                         disabled={booked}
                         onClick={() => setSelectedTime(time)}
-                        className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
-                          booked
-                            ? "border-gray-100 text-gray-300 bg-gray-50 cursor-not-allowed"
-                            : isSelected
-                            ? "border-[oklch(55%_0.17_145)] bg-[oklch(55%_0.17_145)] text-white"
-                            : "border-gray-200 text-gray-600 hover:border-gray-300"
-                        }`}
+                        className="px-3 py-1.5 rounded-lg border text-sm transition-all"
+                        style={{
+                          borderColor: booked ? "rgba(13,18,16,0.06)" : isSelected ? "var(--vl-accent)" : "rgba(13,18,16,0.12)",
+                          background: booked ? "rgba(13,18,16,0.03)" : isSelected ? "var(--vl-accent)" : "rgba(255,255,255,0.55)",
+                          color: booked ? "var(--vl-text-3)" : isSelected ? "#fff" : "var(--vl-text-2)",
+                          cursor: booked ? "not-allowed" : "pointer",
+                          opacity: booked ? 0.5 : 1,
+                        }}
                       >
                         {time}
                       </button>
@@ -304,7 +279,7 @@ export default function AgendarPage({ params }: Props) {
             {/* Meeting point */}
             {selectedTime && (
               <section className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <label className="block text-sm font-medium mb-2 flex items-center gap-2" style={{ color: "var(--vl-text-2)" }}>
                   <MapPin size={15} />
                   Ponto de encontro
                 </label>
@@ -313,7 +288,7 @@ export default function AgendarPage({ params }: Props) {
                   placeholder="Ex: Rua das Flores, 123 — portão azul"
                   value={meetingPoint}
                   onChange={(e) => setMeetingPoint(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[oklch(55%_0.17_145)] focus:border-transparent"
+                  className="vl-input"
                 />
               </section>
             )}
@@ -326,13 +301,8 @@ export default function AgendarPage({ params }: Props) {
             )}
 
             {selectedTime && meetingPoint && (
-              <Button
-                type="button"
-                disabled={isPending}
-                className="w-full"
-                onClick={handleConfirm}
-              >
-                {isPending ? "Aguarde…" : `Continuar para pagamento`}
+              <Button type="button" disabled={isPending} className="w-full" onClick={handleConfirm}>
+                {isPending ? "Aguarde…" : "Continuar para pagamento"}
               </Button>
             )}
           </>

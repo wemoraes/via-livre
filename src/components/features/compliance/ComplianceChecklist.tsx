@@ -75,14 +75,14 @@ export default function ComplianceChecklist({ documents, approvedCount, onUpload
     <div>
       {/* Progress bar */}
       <div className="mb-6">
-        <div className="flex justify-between text-sm text-gray-600 mb-2">
+        <div className="flex justify-between text-sm mb-2" style={{ color: "var(--vl-text-2)" }}>
           <span>{approvedCount} de {total} documentos aprovados</span>
-          <span className="font-medium">{Math.round((approvedCount / total) * 100)}%</span>
+          <span className="font-medium" style={{ color: "var(--vl-accent)" }}>{Math.round((approvedCount / total) * 100)}%</span>
         </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-valuenow={approvedCount} aria-valuemin={0} aria-valuemax={total}>
+        <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(13,18,16,0.08)" }} role="progressbar" aria-valuenow={approvedCount} aria-valuemin={0} aria-valuemax={total}>
           <div
-            className="h-full bg-[oklch(55%_0.17_145)] rounded-full transition-all duration-500"
-            style={{ width: `${(approvedCount / total) * 100}%` }}
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${(approvedCount / total) * 100}%`, background: "var(--vl-accent)" }}
           />
         </div>
       </div>
@@ -94,12 +94,12 @@ export default function ComplianceChecklist({ documents, approvedCount, onUpload
           const canUpload = doc.status === "PENDING" || doc.status === "REJECTED";
 
           return (
-            <li key={doc.type} className="border border-gray-100 rounded-xl p-4">
+            <li key={doc.type} className="rounded-xl p-4" style={{ border: "1px solid rgba(13,18,16,0.08)", background: "rgba(255,255,255,0.35)" }}>
               <div className="flex items-start gap-3">
                 <StatusIcon status={doc.status} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-gray-900 text-sm">{meta?.label}</span>
+                    <span className="font-medium text-sm" style={{ color: "var(--vl-text-1)" }}>{meta?.label}</span>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[doc.status] ?? STATUS_COLOR.PENDING}`}>
                       {STATUS_LABEL[doc.status] ?? doc.status}
                     </span>
@@ -114,7 +114,7 @@ export default function ComplianceChecklist({ documents, approvedCount, onUpload
                   </div>
 
                   {helpOpen === doc.type && (
-                    <p className="text-xs text-gray-500 mt-2 leading-relaxed">{meta?.description}</p>
+                    <p className="text-xs mt-2 leading-relaxed" style={{ color: "var(--vl-text-3)" }}>{meta?.description}</p>
                   )}
 
                   {doc.status === "REJECTED" && doc.reviewNote && (
@@ -129,7 +129,8 @@ export default function ComplianceChecklist({ documents, approvedCount, onUpload
                   <button
                     type="button"
                     onClick={() => setUploadingType(uploadingType === doc.type ? null : doc.type)}
-                    className="text-sm font-medium text-[oklch(55%_0.17_145)] hover:underline shrink-0"
+                    className="text-sm font-medium hover:underline shrink-0"
+                    style={{ color: "var(--vl-accent)" }}
                   >
                     {uploadingType === doc.type ? "Cancelar" : "Enviar"}
                   </button>

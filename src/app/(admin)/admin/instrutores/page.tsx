@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { auth } from "@/auth";
 import { listInstructors } from "@/actions/admin";
 import { InstructorStatus } from "@prisma/client";
@@ -13,12 +12,12 @@ const STATUS_LABEL: Record<InstructorStatus, string> = {
   INACTIVE: "Inativo",
 };
 
-const STATUS_COLOR: Record<InstructorStatus, string> = {
-  PENDING: "text-yellow-700 bg-yellow-50",
-  UNDER_REVIEW: "text-blue-700 bg-blue-50",
-  ACTIVE: "text-green-700 bg-green-50",
-  SUSPENDED: "text-red-700 bg-red-50",
-  INACTIVE: "text-gray-700 bg-gray-50",
+const STATUS_STYLE: Record<InstructorStatus, { color: string; bg: string }> = {
+  PENDING:      { color: "oklch(55% 0.12 85)",  bg: "oklch(96% 0.04 85)" },
+  UNDER_REVIEW: { color: "oklch(45% 0.12 235)",  bg: "oklch(93% 0.04 235)" },
+  ACTIVE:       { color: "var(--vl-accent)",      bg: "oklch(92% 0.07 145)" },
+  SUSPENDED:    { color: "oklch(50% 0.15 25)",    bg: "oklch(95% 0.04 25)" },
+  INACTIVE:     { color: "oklch(45% 0.03 0)",     bg: "oklch(95% 0.01 0)" },
 };
 
 export default async function AdminInstructoresPage() {
@@ -31,45 +30,52 @@ export default async function AdminInstructoresPage() {
   const instructors = result.data;
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-8">Instrutores</h1>
+    <main
+      className="min-h-screen py-10 px-4"
+      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
+    >
+      <div aria-hidden className="vl-mesh" />
 
-        <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-2xl font-semibold mb-8" style={{ color: "var(--vl-text-1)" }}>Instrutores</h1>
+
+        <div className="glass-card rounded-2xl overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="border-b border-gray-100">
+            <thead style={{ borderBottom: "1px solid rgba(13,18,16,0.08)" }}>
               <tr>
-                <th className="text-left px-4 py-3 text-xs text-gray-500 font-medium">Nome</th>
-                <th className="text-left px-4 py-3 text-xs text-gray-500 font-medium">Cidade</th>
-                <th className="text-left px-4 py-3 text-xs text-gray-500 font-medium">Status</th>
-                <th className="text-left px-4 py-3 text-xs text-gray-500 font-medium">Aprovômetro</th>
-                <th className="text-left px-4 py-3 text-xs text-gray-500 font-medium">Rating</th>
-                <th className="px-4 py-3" />
+                {["Nome", "Cidade", "Status", "Aprovômetro", "Rating", ""].map((h) => (
+                  <th key={h} className={`text-left px-4 py-3 text-xs font-medium ${!h ? "w-24" : ""}`} style={{ color: "var(--vl-text-3)" }}>
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody>
               {instructors.map((inst) => (
-                <tr key={inst.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{inst.name}</td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {[inst.city, inst.state].filter(Boolean).join(", ") || "-"}
+                <tr key={inst.id} style={{ borderBottom: "1px solid rgba(13,18,16,0.04)" }} className="hover:bg-white/30 transition-colors">
+                  <td className="px-4 py-3 font-medium" style={{ color: "var(--vl-text-1)" }}>{inst.name}</td>
+                  <td className="px-4 py-3" style={{ color: "var(--vl-text-3)" }}>
+                    {[inst.city, inst.state].filter(Boolean).join(", ") || "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[inst.status as InstructorStatus]}`}>
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full font-medium"
+                      style={{
+                        color: STATUS_STYLE[inst.status as InstructorStatus].color,
+                        background: STATUS_STYLE[inst.status as InstructorStatus].bg,
+                      }}
+                    >
                       {STATUS_LABEL[inst.status as InstructorStatus]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3" style={{ color: "var(--vl-text-2)" }}>
                     {inst.aprovometro !== null ? `${inst.aprovometro} aulas` : "—"}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3" style={{ color: "var(--vl-text-2)" }}>
                     {inst.avgRating !== null ? `${inst.avgRating} ★` : "—"}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <SuspendButton
-                      instructorId={inst.id}
-                      currentStatus={inst.status as InstructorStatus}
-                    />
+                    <SuspendButton instructorId={inst.id} currentStatus={inst.status as InstructorStatus} />
                   </td>
                 </tr>
               ))}
@@ -77,7 +83,9 @@ export default async function AdminInstructoresPage() {
           </table>
 
           {instructors.length === 0 && (
-            <p className="text-center py-12 text-sm text-gray-400">Nenhum instrutor encontrado.</p>
+            <p className="text-center py-12 text-sm" style={{ color: "var(--vl-text-3)" }}>
+              Nenhum instrutor encontrado.
+            </p>
           )}
         </div>
       </div>

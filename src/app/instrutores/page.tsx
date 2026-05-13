@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useTransition, useCallback } from "react";
-import { APIProvider, Map, AdvancedMarker, Pin } from "@vis.gl/react-google-maps";
+import { useState, useEffect, useTransition, useCallback, useRef, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { APIProvider, Map, AdvancedMarker } from "@vis.gl/react-google-maps";
 import { Search, SlidersHorizontal, X, MapIcon, List } from "lucide-react";
 import InstructorCard from "@/components/features/instructors/InstructorCard";
 import { searchInstructors } from "@/actions/search";
@@ -10,19 +11,65 @@ import { VehicleCategory } from "@prisma/client";
 
 const MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!;
 const DEFAULT_CENTER = { lat: -23.5505, lng: -46.6333 };
+const URL_SYNC_DEBOUNCE_MS = 200;
 
 const inputSm = "px-2 py-1.5 text-sm rounded-lg border focus:outline-none focus:ring-2 bg-white/60";
 
-export default function InstructoresPage() {
+function filtersFromSearchParams(params: URLSearchParams): SearchFilters {
+  const out: SearchFilters = { page: 1, limit: 20 };
+  const city = params.get("city");
+  const maxPrice = params.get("maxPrice");
+  const minRating = params.get("minRating");
+  const category = params.get("category");
+  if (city) out.city = city;
+  if (maxPrice) out.maxPrice = Number(maxPrice);
+  if (minRating) out.minRating = Number(minRating);
+  if (category === "AUTO" || category === "MOTO") out.category = category;
+  return out;
+}
+
+function filtersToSearchParams(f: SearchFilters): string {
+  const params = new URLSearchParams();
+  if (f.city) params.set("city", f.city);
+  if (f.maxPrice) params.set("maxPrice", String(f.maxPrice));
+  if (f.minRating) params.set("minRating", String(f.minRating));
+  if (f.category) params.set("category", f.category);
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
+}
+
+function PricePin({ price, selected }: { price: number; selected: boolean }) {
+  return (
+    <div
+      className="px-2.5 py-1 rounded-full text-xs font-semibold shadow-md whitespace-nowrap transition-all"
+      style={{
+        background: selected ? "oklch(52% 0.17 145)" : "#ffffff",
+        color: selected ? "#ffffff" : "oklch(52% 0.17 145)",
+        border: `1.5px solid oklch(52% 0.17 145)`,
+        transform: selected ? "scale(1.1)" : "scale(1)",
+      }}
+    >
+      R$ {price}
+    </div>
+  );
+}
+
+function InstrutoresPageInner() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [view, setView] = useState<"list" | "map">("list");
   const [instructors, setInstructors] = useState<InstructorSearchResult[]>([]);
   const [total, setTotal] = useState(0);
-  const [filters, setFilters] = useState<SearchFilters>({ page: 1, limit: 20 });
+  const [filters, setFilters] = useState<SearchFilters>(() => filtersFromSearchParams(searchParams));
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(searchParams.get("city") ?? "");
   const [isPending, startTransition] = useTransition();
   const [mapCenter, setMapCenter] = useState(DEFAULT_CENTER);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const urlSyncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback((f: SearchFilters) => {
     startTransition(async () => {
@@ -30,6 +77,13 @@ export default function InstructoresPage() {
       if (result.success) { setInstructors(result.data.instructors); setTotal(result.data.total); }
     });
   }, []);
+
+  const syncUrl = useCallback((f: SearchFilters) => {
+    if (urlSyncTimer.current) clearTimeout(urlSyncTimer.current);
+    urlSyncTimer.current = setTimeout(() => {
+      router.replace(`${pathname}${filtersToSearchParams(f)}`, { scroll: false });
+    }, URL_SYNC_DEBOUNCE_MS);
+  }, [router, pathname]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -52,7 +106,16 @@ export default function InstructoresPage() {
   function applyFilters(partial: Partial<SearchFilters>) {
     const updated = { ...filters, ...partial, page: 1 };
     setFilters(updated);
+    syncUrl(updated);
     load(updated);
+  }
+
+  function clearFilters() {
+    const cleared: SearchFilters = { page: 1, limit: 20 };
+    setFilters(cleared);
+    setQuery("");
+    syncUrl(cleared);
+    load(cleared);
   }
 
   function handleCitySearch(e: React.FormEvent) {
@@ -130,6 +193,7 @@ export default function InstructoresPage() {
                   <label className="block text-xs mb-1" style={{ color: "var(--vl-text-3)" }}>Preço máx. (R$)</label>
                   <input
                     type="number" min={50} max={500} step={10} placeholder="500"
+                    value={filters.maxPrice ?? ""}
                     className={`${inputSm} w-24`}
                     style={{ borderColor: "rgba(13,18,16,0.12)" }}
                     onChange={(e) => applyFilters({ maxPrice: Number(e.target.value) || undefined })}
@@ -138,6 +202,7 @@ export default function InstructoresPage() {
                 <div>
                   <label className="block text-xs mb-1" style={{ color: "var(--vl-text-3)" }}>Avaliação mínima</label>
                   <select
+                    value={filters.minRating ?? ""}
                     className={`${inputSm} bg-white/60`}
                     style={{ borderColor: "rgba(13,18,16,0.12)" }}
                     onChange={(e) => applyFilters({ minRating: Number(e.target.value) || undefined })}
@@ -150,6 +215,7 @@ export default function InstructoresPage() {
                 <div>
                   <label className="block text-xs mb-1" style={{ color: "var(--vl-text-3)" }}>Categoria</label>
                   <select
+                    value={filters.category ?? ""}
                     className={`${inputSm} bg-white/60`}
                     style={{ borderColor: "rgba(13,18,16,0.12)" }}
                     onChange={(e) => applyFilters({ category: (e.target.value as VehicleCategory) || undefined })}
@@ -161,7 +227,7 @@ export default function InstructoresPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => { setFilters({ page: 1, limit: 20 }); setQuery(""); load({ page: 1, limit: 20 }); }}
+                  onClick={clearFilters}
                   className="flex items-center gap-1 text-xs hover:opacity-70"
                   style={{ color: "var(--vl-text-3)" }}
                 >
@@ -191,7 +257,7 @@ export default function InstructoresPage() {
               )}
             </div>
           ) : (
-            <div className="rounded-2xl overflow-hidden" style={{ height: "calc(100vh - 200px)", border: "1px solid rgba(255,255,255,0.6)" }}>
+            <div className="relative rounded-2xl overflow-hidden" style={{ height: "calc(100vh - 200px)", border: "1px solid rgba(255,255,255,0.6)" }}>
               <Map defaultCenter={mapCenter} defaultZoom={12} mapId="via-livre-instructor-map" gestureHandling="greedy">
                 {instructors.map((instructor) =>
                   instructor.lat && instructor.lng ? (
@@ -200,11 +266,7 @@ export default function InstructoresPage() {
                       position={{ lat: instructor.lat, lng: instructor.lng }}
                       onClick={() => setSelectedId(instructor.id)}
                     >
-                      <Pin
-                        background={selectedId === instructor.id ? "oklch(52% 0.17 145)" : "#ffffff"}
-                        borderColor="oklch(52% 0.17 145)"
-                        glyphColor={selectedId === instructor.id ? "#ffffff" : "oklch(52% 0.17 145)"}
-                      />
+                      <PricePin price={instructor.pricePerLesson} selected={selectedId === instructor.id} />
                     </AdvancedMarker>
                   ) : null
                 )}
@@ -233,5 +295,13 @@ export default function InstructoresPage() {
         </div>
       </div>
     </APIProvider>
+  );
+}
+
+export default function InstrutoresPage() {
+  return (
+    <Suspense>
+      <InstrutoresPageInner />
+    </Suspense>
   );
 }

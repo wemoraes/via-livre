@@ -9,9 +9,17 @@ interface Props {
 export default function AprovometroTag({ aprovometro, aprovometroCount, size = "md" }: Props) {
   if (!aprovometro || aprovometroCount < 5) {
     return (
-      <span className={`inline-flex items-center gap-1 text-gray-400 ${size === "sm" ? "text-xs" : "text-sm"}`}>
+      <span
+        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 ${
+          size === "sm" ? "text-xs" : "text-sm"
+        }`}
+        style={{
+          background: "rgba(13,18,16,0.06)",
+          color: "var(--vl-text-3)",
+        }}
+      >
         <TrendingUp size={size === "sm" ? 12 : 14} />
-        Novo instrutor
+        Novo Instrutor
       </span>
     );
   }
@@ -20,19 +28,18 @@ export default function AprovometroTag({ aprovometro, aprovometroCount, size = "
 
   return (
     <span
-      className={`inline-flex items-center gap-1 font-medium rounded-full px-2 py-0.5 ${
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-medium ${
         size === "sm" ? "text-xs" : "text-sm"
-      } ${
-        value <= 10
-          ? "text-green-700 bg-green-50"
-          : value <= 15
-          ? "text-yellow-700 bg-yellow-50"
-          : "text-orange-700 bg-orange-50"
       }`}
+      style={{
+        background: "oklch(55% 0.17 145)",
+        color: "#ffffff",
+      }}
       title={`Média de ${value} aulas até a aprovação (${aprovometroCount} alunos)`}
     >
       <TrendingUp size={size === "sm" ? 12 : 14} />
-      {value} aulas/aprovação
+      <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}>{value}</span>
+      <span style={{ opacity: 0.85 }}>aulas/aprovação</span>
     </span>
   );
 }

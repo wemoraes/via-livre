@@ -14,7 +14,7 @@ const PUBLIC_PREFIXES = [
   "/nova-senha",
 ];
 
-const PUBLIC_EXACT = ["/", "/buscar", "/sobre", "/403", "/termos", "/privacidade"];
+const PUBLIC_EXACT = ["/", "/para-instrutores", "/buscar", "/sobre", "/403", "/termos", "/privacidade"];
 
 export default auth((req: NextAuthRequest) => {
   const { pathname } = req.nextUrl;

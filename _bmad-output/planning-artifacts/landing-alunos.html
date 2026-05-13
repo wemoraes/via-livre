@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViaLivre — Encontre seu instrutor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           oklch(96.5% 0.018 145);
+  --text-1:       #0d1210;
+  --text-2:       #4a5449;
+  --text-3:       #8a9888;
+  --accent:       oklch(52% 0.17 145);
+  --accent-hover: oklch(46% 0.15 145);
+  --accent-glow:  oklch(52% 0.17 145 / 0.28);
+  --accent-light: oklch(92% 0.07 145);
+  --accent-mid:   oklch(84% 0.11 145);
+
+  /* Glass — 3 níveis com opacidade e blur distintos */
+  --glass:        rgba(255,255,255,0.50);
+  --glass-hov:    rgba(255,255,255,0.72);
+  --glass-border: rgba(255,255,255,0.78);
+
+  /* Sombras com inset highlight — o que faz glass parecer glass */
+  --shadow-sm: 0 2px 8px rgba(13,18,16,0.10), 0 1px 3px rgba(13,18,16,0.07),
+               inset 0 1px 0 rgba(255,255,255,0.62);
+  --shadow-md: 0 8px 36px rgba(13,18,16,0.14), 0 3px 10px rgba(13,18,16,0.09),
+               inset 0 1px 0 rgba(255,255,255,0.62);
+  --shadow-lg: 0 20px 64px rgba(13,18,16,0.18), 0 6px 20px rgba(13,18,16,0.11),
+               inset 0 1px 0 rgba(255,255,255,0.68);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ── Mesh — blobs saturados pra glass ter algo pra blur ── */
+.mesh {
+  position: fixed; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse 1100px 900px at -8%   2%,  oklch(68% 0.21 145 / 0.36), transparent 52%),
+    radial-gradient(ellipse 800px 1100px at 110% 98%, oklch(56% 0.23 145 / 0.28), transparent 52%),
+    radial-gradient(ellipse 700px 600px  at 62%  14%, oklch(78% 0.17 145 / 0.22), transparent 52%),
+    radial-gradient(ellipse 500px 500px  at 88%  42%, oklch(70% 0.19 145 / 0.16), transparent 52%),
+    oklch(96.5% 0.018 145);
+}
+
+/* ── Containers ── */
+.container    { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+.container-sm { max-width:  860px; margin: 0 auto; padding: 0 28px; }
+
+/* ── Glass — 3 camadas com profundidade real ── */
+/* Nível 1: cards base — translúcido, cor do mesh aparece */
+.glass    {
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+}
+/* Nível 2: cards em destaque — mais opaco, mais profundidade */
+.glass-md {
+  background: rgba(255,255,255,0.68);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.86);
+  box-shadow: var(--shadow-md);
+}
+/* Nível 3: seções hero — máxima opacidade, flutua sobre tudo */
+.glass-lg {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(48px) saturate(220%);
+  -webkit-backdrop-filter: blur(48px) saturate(220%);
+  border: 1px solid rgba(255,255,255,0.94);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Nav ── */
+nav { position: sticky; top: 12px; z-index: 100; padding: 0 16px; pointer-events: none; }
+.nav-pill {
+  pointer-events: all; max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; height: 52px;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(28px) saturate(200%); -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.88); border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(13,18,16,0.10), 0 1px 4px rgba(13,18,16,0.07),
+              inset 0 1px 0 rgba(255,255,255,0.70);
+}
+.logo { font-size: 17px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-1); user-select: none; }
+.logo-dot { color: var(--accent); }
+.nav-links { display: flex; align-items: center; gap: 24px; }
+.nav-link  { font-size: 13px; font-weight: 500; color: var(--text-3); transition: color 150ms; }
+.nav-link:hover { color: var(--text-1); }
+.nav-sep   { font-size: 13px; font-weight: 500; color: var(--text-3); }
+.nav-sep:hover { color: var(--text-2); }
+.btn-nav { font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 10px; background: var(--text-1); color: #fff; transition: opacity 150ms; }
+.btn-nav:hover { opacity: 0.80; }
+
+/* ── Hero ── */
+.hero { padding: 60px 0 80px; }
+.hero-grid { display: grid; grid-template-columns: 1fr 460px; gap: 52px; align-items: start; }
+
+.hero-h1 {
+  font-size: clamp(42px, 4.8vw, 60px);
+  font-weight: 800; letter-spacing: -0.035em; line-height: 1.05;
+  color: var(--text-1); margin-bottom: 20px;
+}
+.hero-h1 mark { background: none; color: var(--accent); }
+.hero-sub { font-size: 16px; line-height: 1.7; color: var(--text-2); max-width: 400px; margin-bottom: 32px; }
+.hero-sub strong { color: var(--text-1); font-weight: 700; }
+.hero-actions { display: flex; gap: 10px; margin-bottom: 36px; }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 22px; border-radius: 12px; font-size: 14px; font-weight: 700; color: #fff;
+  background: var(--accent);
+  box-shadow: var(--shadow-sm), 0 4px 16px var(--accent-glow);
+  transition: all 180ms cubic-bezier(0.16,1,0.3,1);
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-md), 0 6px 24px var(--accent-glow); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text-2);
+  background: rgba(255,255,255,0.65); border: 1px solid rgba(0,0,0,0.08);
+  transition: all 180ms;
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.92); color: var(--text-1); }
+
+.hero-proof { display: flex; gap: 0; padding-top: 28px; border-top: 1px solid rgba(0,0,0,0.07); }
+.proof-item { flex: 1; }
+.proof-item + .proof-item { border-left: 1px solid rgba(0,0,0,0.07); padding-left: 20px; }
+.proof-val   { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: var(--text-1); }
+.proof-label { font-size: 11px; color: var(--text-3); margin-top: 2px; line-height: 1.4; }
+
+/* ── Hero panel ── */
+.hero-panel { display: flex; flex-direction: column; gap: 0; }
+
+/* View toggle */
+.view-toggle {
+  display: flex; gap: 4px;
+  background: rgba(0,0,0,0.05); border-radius: 10px; padding: 4px;
+  margin-bottom: 10px; align-self: flex-start;
+}
+.view-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 7px; border: none; cursor: pointer;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 12px; font-weight: 600; transition: all 160ms;
+  background: transparent; color: var(--text-3);
+}
+.view-btn.active { background: #fff; color: var(--text-1); box-shadow: var(--shadow-sm); }
+
+/* Map view */
+.map-wrap {
+  border-radius: 18px; overflow: hidden;
+  background: rgba(255,255,255,0.60);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 8px;
+}
+.map-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px 0; background: transparent;
+}
+.map-location { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-2); }
+.map-count { font-size: 11px; color: var(--text-3); background: var(--accent-light); border-radius: 100px; padding: 2px 10px; }
+
+/* List view cards */
+.list-view { display: flex; flex-direction: column; gap: 8px; }
+
+.inst-card {
+  border-radius: 16px; padding: 14px 14px;
+  cursor: pointer; display: flex; flex-direction: column; gap: 0;
+  transition: all 180ms cubic-bezier(0.16,1,0.3,1);
+}
+.inst-card:hover { background: var(--glass-hov) !important; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.inst-top { display: flex; align-items: center; gap: 10px; }
+
+/* Car thumbnail */
+.car-thumb {
+  width: 72px; height: 46px; border-radius: 8px; overflow: hidden;
+  flex-shrink: 0; position: relative;
+}
+
+.inst-avatar {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.inst-info  { flex: 1; min-width: 0; }
+.inst-name-row { display: flex; align-items: center; gap: 4px; }
+.inst-name  { font-size: 14px; font-weight: 700; color: var(--text-1); }
+.verified   { color: var(--accent); }
+.inst-city  { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.inst-price { text-align: right; flex-shrink: 0; }
+.inst-pval  { font-size: 14px; font-weight: 800; color: var(--text-1); letter-spacing: -0.02em; }
+.inst-plabel{ font-size: 10px; color: var(--text-3); }
+
+.inst-metrics {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+.aprov-val   { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
+.av-green    { color: var(--accent); }
+.av-yellow   { color: oklch(52% 0.14 75); }
+.aprov-label { font-size: 10px; color: var(--text-3); }
+.star-row    { margin-left: auto; display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--text-3); }
+.star        { color: oklch(62% 0.14 75); }
+
+.panel-hint { text-align: center; font-size: 11px; color: var(--text-3); padding: 6px 0 2px; }
+
+/* ── Aprovômetro spotlight ── */
+.section-aprov { padding: 88px 0; }
+.aprov-spotlight {
+  border-radius: 28px; padding: 56px 64px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+}
+.aprov-left {}
+.aprov-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 16px; }
+.aprov-h2 { font-size: clamp(28px, 3vw, 38px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; color: var(--text-1); margin-bottom: 20px; }
+.aprov-body { font-size: 15px; line-height: 1.7; color: var(--text-2); margin-bottom: 12px; }
+.link-arrow { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--accent); margin-top: 8px; transition: gap 160ms; }
+.link-arrow:hover { gap: 10px; }
+
+.aprov-right { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.aprov-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 100px; font-weight: 700;
+  color: var(--accent); letter-spacing: -0.05em; line-height: 1;
+  text-align: center;
+}
+.aprov-sub { text-align: center; font-size: 13px; color: var(--text-3); margin-bottom: 28px; margin-top: 4px; }
+.bar-group { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.bar-row {}
+.bar-meta  { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-3); margin-bottom: 5px; }
+.bar-meta strong { color: var(--text-2); font-weight: 600; }
+.bar-track { height: 5px; border-radius: 100px; background: rgba(0,0,0,0.08); overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 100px; }
+.bar-acc   { background: var(--accent); }
+.bar-dim   { background: rgba(0,0,0,0.14); }
+.aprov-note { text-align: center; font-size: 10px; color: var(--text-3); margin-top: 16px; }
+
+/* ── Features ── */
+.section-features { padding: 0 0 88px; }
+.features-header  { margin-bottom: 44px; }
+.section-h2 { font-size: clamp(26px, 3vw, 36px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; color: var(--text-1); }
+.features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.feat-card {
+  border-radius: 20px; padding: 36px 32px;
+  transition: all 180ms cubic-bezier(0.16,1,0.3,1);
+}
+.feat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.feat-tag   { font-size: 9px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+.feat-icon  { width: 44px; height: 44px; border-radius: 12px; background: var(--accent-light); border: 1px solid var(--accent-mid); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.feat-title { font-size: 17px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; }
+.feat-body  { font-size: 14px; line-height: 1.65; color: var(--text-2); }
+
+/* ── CTA ── */
+.section-cta { padding: 0 0 88px; }
+.cta-card {
+  border-radius: 28px; padding: 72px 60px; text-align: center;
+  background: linear-gradient(135deg, oklch(50% 0.15 145), oklch(44% 0.13 145));
+  position: relative; overflow: hidden;
+}
+.cta-card::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 700px 400px at 20% 30%, rgba(255,255,255,0.08), transparent 60%);
+}
+.cta-h2 { font-size: clamp(26px, 3.5vw, 40px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: #fff; margin-bottom: 14px; position: relative; }
+.cta-sub { font-size: 16px; color: rgba(255,255,255,0.68); max-width: 360px; margin: 0 auto 32px; line-height: 1.65; position: relative; }
+.cta-btns { display: flex; gap: 10px; justify-content: center; position: relative; }
+.btn-cta-white { display: inline-flex; align-items: center; gap: 8px; padding: 13px 24px; border-radius: 12px; font-size: 14px; font-weight: 700; background: #fff; color: var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,0.14); transition: all 180ms; }
+.btn-cta-white:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,0,0,0.18); }
+.btn-cta-ghost { display: inline-flex; align-items: center; gap: 8px; padding: 13px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.80); border: 1px solid rgba(255,255,255,0.25); transition: all 180ms; }
+.btn-cta-ghost:hover { color: #fff; border-color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.08); }
+
+/* ── Footer ── */
+footer { border-top: 1px solid rgba(0,0,0,0.07); padding: 28px 0; background: rgba(255,255,255,0.40); }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.footer-copy  { font-size: 12px; color: var(--text-3); }
+.footer-links { display: flex; gap: 20px; }
+.footer-link  { font-size: 12px; color: var(--text-3); transition: color 150ms; }
+.footer-link:hover { color: var(--text-1); }
+
+/* ── Responsive ── */
+@media (max-width: 880px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .hero-panel { display: none; }
+  .aprov-spotlight { grid-template-columns: 1fr; padding: 40px 28px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .nav-links .nav-link { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="mesh"></div>
+
+<!-- ── Nav ── -->
+<nav>
+  <div class="nav-pill">
+    <a href="#" class="logo">Via<span class="logo-dot">.</span>Livre</a>
+    <div class="nav-links">
+      <a href="landing-instrutores.html" class="nav-link">Sou instrutor</a>
+      <a href="#" class="nav-sep">Entrar</a>
+      <a href="#" class="btn-nav">Começar grátis</a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+
+      <!-- Copy -->
+      <div>
+        <h1 class="hero-h1">
+          Sua CNH com o<br>
+          instrutor <mark>certo.</mark>
+        </h1>
+        <p class="hero-sub">
+          Compare o <strong>Aprovômetro</strong> — média real de aulas até passar no exame — e escolha quem vai te ensinar com dados, não chutes.
+        </p>
+        <div class="hero-actions">
+          <a href="#" class="btn-primary">
+            Buscar instrutores
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#" class="btn-ghost">Ver como funciona</a>
+        </div>
+        <div class="hero-proof">
+          <div class="proof-item">
+            <div class="proof-val">100%</div>
+            <div class="proof-label">instrutores verificados<br>pelo SENATRAN</div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-val">Aprovômetro</div>
+            <div class="proof-label">dado real de aprovação<br>de cada instrutor</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel -->
+      <div class="hero-panel">
+
+        <!-- Toggle -->
+        <div class="view-toggle">
+          <button class="view-btn" id="btn-map" onclick="showMap()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3V7z"/><path d="M9 4v13M15 7v13"/></svg>
+            Mapa
+          </button>
+          <button class="view-btn active" id="btn-list" onclick="showList()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Lista
+          </button>
+        </div>
+
+        <!-- Map view -->
+        <div id="view-map" style="display:none">
+          <div class="map-wrap">
+            <div class="map-header">
+              <div class="map-location">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                São Paulo, SP
+              </div>
+              <span class="map-count">3 instrutores próximos</span>
+            </div>
+            <svg viewBox="0 0 440 230" fill="none" width="100%" style="display:block">
+              <!-- Map background -->
+              <rect width="440" height="230" fill="oklch(96% 0.015 145)"/>
+              <!-- Streets horizontal -->
+              <line x1="0" y1="46"  x2="440" y2="46"  stroke="oklch(88% 0.03 145)" stroke-width="1"/>
+              <line x1="0" y1="92"  x2="440" y2="92"  stroke="oklch(84% 0.04 145)" stroke-width="2"/>
+              <line x1="0" y1="138" x2="440" y2="138" stroke="oklch(88% 0.03 145)" stroke-width="1"/>
+              <line x1="0" y1="184" x2="440" y2="184" stroke="oklch(88% 0.03 145)" stroke-width="1"/>
+              <!-- Streets vertical -->
+              <line x1="73"  y1="0" x2="73"  y2="230" stroke="oklch(88% 0.03 145)" stroke-width="1"/>
+              <line x1="147" y1="0" x2="147" y2="230" stroke="oklch(84% 0.04 145)" stroke-width="2"/>
+              <line x1="220" y1="0" x2="220" y2="230" stroke="oklch(88% 0.03 145)" stroke-width="1"/>
+              <line x1="294" y1="0" x2="294" y2="230" stroke="oklch(84% 0.04 145)" stroke-width="2"/>
+              <line x1="367" y1="0" x2="367" y2="230" stroke="oklch(88% 0.03 145)" stroke-width="1"/>
+              <!-- Block fills (buildings suggestion) -->
+              <rect x="76"  y="49"  width="68" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="150" y="49"  width="68" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="76"  y="95"  width="68" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="150" y="95"  width="40" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="225" y="95"  width="66" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="225" y="49"  width="66" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="297" y="49"  width="66" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="297" y="95"  width="66" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="76"  y="141" width="68" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="150" y="141" width="68" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <rect x="225" y="141" width="66" height="40" rx="3" fill="oklch(90% 0.02 145)" opacity=".6"/>
+              <!-- Search radius -->
+              <circle cx="220" cy="115" r="100" fill="oklch(62% 0.18 145 / 0.07)"/>
+              <circle cx="220" cy="115" r="100" stroke="oklch(62% 0.18 145 / 0.18)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+              <!-- User pin -->
+              <circle cx="220" cy="115" r="10" fill="white" stroke="oklch(62% 0.18 145)" stroke-width="2"/>
+              <circle cx="220" cy="115" r="4"  fill="oklch(62% 0.18 145)"/>
+              <!-- Pin CM (selected/prominent) -->
+              <filter id="s1"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,.15)"/></filter>
+              <circle cx="152" cy="78" r="20" fill="oklch(54% 0.16 145)" filter="url(#s1)"/>
+              <text x="152" y="82" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="10" font-weight="800" fill="white">CM</text>
+              <rect x="116" y="52" width="72" height="20" rx="5" fill="white" filter="url(#s1)"/>
+              <text x="152" y="66" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="10" font-weight="700" fill="oklch(15% 0.008 145)">R$ 120 · 8,4</text>
+              <!-- Pin AS -->
+              <circle cx="294" cy="88" r="18" fill="white" stroke="oklch(85% 0.06 145)" stroke-width="1.5" filter="url(#s1)"/>
+              <text x="294" y="93" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="10" font-weight="800" fill="oklch(54% 0.16 145)">AS</text>
+              <!-- Pin RF -->
+              <circle cx="175" cy="152" r="17" fill="white" stroke="oklch(85% 0.06 145)" stroke-width="1.5" filter="url(#s1)"/>
+              <text x="175" y="157" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="10" font-weight="800" fill="oklch(54% 0.16 145)">RF</text>
+              <!-- Faded pin outside radius -->
+              <circle cx="375" cy="58" r="14" fill="white" stroke="oklch(90% 0.02 145)" stroke-width="1" opacity=".45"/>
+              <text x="375" y="63" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="9" font-weight="700" fill="oklch(65% 0.05 145)" opacity=".45">JL</text>
+            </svg>
+          </div>
+          <p class="panel-hint">Toque em um instrutor para ver o perfil</p>
+        </div>
+
+        <!-- List view -->
+        <div id="view-list">
+          <!-- Search bar -->
+          <div class="glass" style="border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="oklch(55% 0.012 145)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span style="font-size:13px;color:var(--text-3);flex:1">São Paulo, SP</span>
+            <span style="font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-light);border:1px solid var(--accent-mid);padding:2px 10px;border-radius:100px">AUTO</span>
+          </div>
+
+          <div class="list-view">
+
+            <!-- Card 1 -->
+            <div class="glass inst-card">
+              <div class="inst-top">
+                <!-- Car thumbnail -->
+                <div class="car-thumb">
+                  <svg viewBox="0 0 72 46" fill="none" width="72" height="46" style="position:absolute;inset:0">
+                    <rect width="72" height="46" fill="oklch(82% 0.02 145)"/>
+                    <rect x="0" y="28" width="72" height="18" fill="oklch(75% 0.02 145)"/>
+                    <rect x="6" y="24" width="60" height="16" rx="3" fill="oklch(40% 0.02 145)"/>
+                    <path d="M16 24 C18 16 22 13 28 12 L46 12 C52 13 56 16 58 24Z" fill="oklch(38% 0.02 145)"/>
+                    <path d="M26 24 C27 18 29 15 32 14 L42 14 C45 15 47 18 48 24Z" fill="oklch(72% 0.03 145 / 0.5)"/>
+                    <circle cx="20" cy="40" r="6" fill="oklch(18% 0.01 145)"/>
+                    <circle cx="20" cy="40" r="3" fill="oklch(50% 0.01 145)"/>
+                    <circle cx="52" cy="40" r="6" fill="oklch(18% 0.01 145)"/>
+                    <circle cx="52" cy="40" r="3" fill="oklch(50% 0.01 145)"/>
+                    <rect x="58" y="19" width="6" height="3" rx="1" fill="oklch(85% 0.12 75 / 0.7)"/>
+                    <rect x="8"  y="19" width="6" height="3" rx="1" fill="oklch(75% 0.05 25 / 0.5)"/>
+                  </svg>
+                </div>
+                <div class="inst-info">
+                  <div class="inst-name-row">
+                    <span class="inst-name">Carlos Mendes</span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="oklch(54% 0.16 145)" class="verified"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                  </div>
+                  <div class="inst-city">Tatuapé, SP · AUTO</div>
+                </div>
+                <div class="inst-price">
+                  <div class="inst-pval">R$ 120</div>
+                  <div class="inst-plabel">por aula</div>
+                </div>
+              </div>
+              <div class="inst-metrics">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>
+                <span class="aprov-val av-green">8,4</span>
+                <span class="aprov-label">aulas até aprovar (24)</span>
+                <div class="star-row"><span class="star">★</span> 4,9</div>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="glass inst-card" style="opacity:.84">
+              <div class="inst-top">
+                <div class="car-thumb">
+                  <svg viewBox="0 0 72 46" fill="none" width="72" height="46" style="position:absolute;inset:0">
+                    <rect width="72" height="46" fill="oklch(88% 0.04 145)"/>
+                    <rect x="0" y="30" width="72" height="16" fill="oklch(80% 0.03 145)"/>
+                    <rect x="5" y="22" width="62" height="17" rx="3" fill="oklch(96% 0.01 145)"/>
+                    <path d="M14 22 C16 14 21 11 27 10 L47 10 C53 11 57 14 60 22Z" fill="oklch(94% 0.01 145)"/>
+                    <path d="M25 22 C26 16 28 13 31 12 L43 12 C46 13 48 16 49 22Z" fill="oklch(72% 0.04 145 / 0.35)"/>
+                    <circle cx="19" cy="39" r="6" fill="oklch(18% 0.01 145)"/>
+                    <circle cx="19" cy="39" r="3" fill="oklch(50% 0.01 145)"/>
+                    <circle cx="53" cy="39" r="6" fill="oklch(18% 0.01 145)"/>
+                    <circle cx="53" cy="39" r="3" fill="oklch(50% 0.01 145)"/>
+                    <rect x="59" y="18" width="5" height="3" rx="1" fill="oklch(85% 0.12 75 / 0.7)"/>
+                  </svg>
+                </div>
+                <div class="inst-info">
+                  <div class="inst-name-row">
+                    <span class="inst-name">Ana Soares</span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="oklch(54% 0.16 145)" class="verified"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                  </div>
+                  <div class="inst-city">Mooca, SP · AUTO + MOTO</div>
+                </div>
+                <div class="inst-price">
+                  <div class="inst-pval">R$ 95</div>
+                  <div class="inst-plabel">por aula</div>
+                </div>
+              </div>
+              <div class="inst-metrics">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>
+                <span class="aprov-val av-yellow">11,2</span>
+                <span class="aprov-label">aulas até aprovar (18)</span>
+                <div class="star-row"><span class="star">★</span> 4,7</div>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="glass inst-card" style="opacity:.65">
+              <div class="inst-top">
+                <div class="car-thumb">
+                  <svg viewBox="0 0 72 46" fill="none" width="72" height="46" style="position:absolute;inset:0">
+                    <rect width="72" height="46" fill="oklch(72% 0.04 220)"/>
+                    <rect x="0" y="29" width="72" height="17" fill="oklch(65% 0.03 220)"/>
+                    <rect x="7" y="23" width="58" height="15" rx="3" fill="oklch(42% 0.05 220)"/>
+                    <path d="M17 23 C19 15 23 12 29 11 L45 11 C51 12 55 15 57 23Z" fill="oklch(40% 0.05 220)"/>
+                    <path d="M27 23 C28 17 30 14 33 13 L41 13 C44 14 46 17 47 23Z" fill="oklch(75% 0.04 220 / 0.4)"/>
+                    <circle cx="21" cy="40" r="6" fill="oklch(15% 0.01 220)"/>
+                    <circle cx="21" cy="40" r="3" fill="oklch(45% 0.01 220)"/>
+                    <circle cx="51" cy="40" r="6" fill="oklch(15% 0.01 220)"/>
+                    <circle cx="51" cy="40" r="3" fill="oklch(45% 0.01 220)"/>
+                    <rect x="57" y="18" width="5" height="3" rx="1" fill="oklch(85% 0.12 75 / 0.7)"/>
+                    <rect x="10" y="18" width="5" height="3" rx="1" fill="oklch(75% 0.05 25 / 0.4)"/>
+                  </svg>
+                </div>
+                <div class="inst-info">
+                  <div class="inst-name-row">
+                    <span class="inst-name">Roberto Faria</span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="oklch(54% 0.16 145)" class="verified"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                  </div>
+                  <div class="inst-city">Penha, SP · AUTO</div>
+                </div>
+                <div class="inst-price">
+                  <div class="inst-pval">R$ 110</div>
+                  <div class="inst-plabel">por aula</div>
+                </div>
+              </div>
+              <div class="inst-metrics">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>
+                <span class="aprov-val av-green">9,1</span>
+                <span class="aprov-label">aulas até aprovar (35)</span>
+                <div class="star-row"><span class="star">★</span> 4,8</div>
+              </div>
+            </div>
+
+          </div>
+          <p class="panel-hint">+ dezenas de instrutores na sua região</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── Aprovômetro spotlight ── -->
+<section class="section-aprov">
+  <div class="container">
+    <div class="glass-lg aprov-spotlight">
+      <div class="aprov-left">
+        <span class="aprov-kicker">Exclusivo ViaLivre</span>
+        <h2 class="aprov-h2">A métrica que nenhuma autoescola tem coragem de mostrar.</h2>
+        <p class="aprov-body">Cada instrutor tem uma média calculada com base nos alunos reais que aprovaram com ele. Você vê exatamente quantas aulas, em média, foram necessárias — sem depoimentos forjados.</p>
+        <p class="aprov-body">Só aparece quando o instrutor tem pelo menos 5 aprovações confirmadas. Quem tem poucos dados aparece como "Novo instrutor".</p>
+        <a href="#" class="link-arrow">
+          Ver instrutores com Aprovômetro
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="aprov-right">
+        <div class="aprov-number">8,4</div>
+        <div class="aprov-sub">aulas até aprovação — média</div>
+        <div class="bar-group">
+          <div class="bar-row">
+            <div class="bar-meta"><span>Carlos Mendes</span><strong>8,4 aulas</strong></div>
+            <div class="bar-track"><div class="bar-fill bar-acc" style="width:56%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-meta"><span>Média do mercado</span><strong>15,0 aulas</strong></div>
+            <div class="bar-track"><div class="bar-fill bar-dim" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="aprov-note">Calculado com dados reais de exame. Mínimo de 5 aprovações.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── Features ── -->
+<section class="section-features">
+  <div class="container">
+    <div class="features-header">
+      <h2 class="section-h2">Uma plataforma honesta.</h2>
+    </div>
+    <div class="features-grid">
+      <div class="glass feat-card">
+        <div class="feat-tag">Compliance</div>
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="oklch(54% 0.16 145)" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <div class="feat-title">Instrutores verificados</div>
+        <div class="feat-body">CNH EAR, credenciamento SENATRAN e certidões negativas revisados pela nossa equipe antes de qualquer ativação. Ninguém entra sem checagem.</div>
+      </div>
+      <div class="glass feat-card">
+        <div class="feat-tag">Transparência</div>
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="oklch(54% 0.16 145)" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+        <div class="feat-title">Aprovômetro</div>
+        <div class="feat-body">Dados reais de aprovação calculados automaticamente. Não estrelas compradas, não depoimentos forjados. A média que mostra quem realmente ensina.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── CTA ── -->
+<section class="section-cta">
+  <div class="container">
+    <div class="cta-card">
+      <h2 class="cta-h2">Encontre seu instrutor agora.</h2>
+      <p class="cta-sub">Crie sua conta gratuitamente e compare instrutores perto de você com dados reais.</p>
+      <div class="cta-btns">
+        <a href="#" class="btn-cta-white">
+          Buscar instrutores
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#" class="btn-cta-ghost">Criar conta — é grátis</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="container footer-inner">
+    <span class="logo" style="font-size:15px">Via<span class="logo-dot">.</span>Livre</span>
+    <p class="footer-copy">© 2025 ViaLivre. Todos os direitos reservados.</p>
+    <div class="footer-links">
+      <a href="#" class="footer-link">Termos</a>
+      <a href="#" class="footer-link">Privacidade</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+function showMap() {
+  document.getElementById('view-map').style.display = 'block';
+  document.getElementById('view-list').style.display = 'none';
+  document.getElementById('btn-map').classList.add('active');
+  document.getElementById('btn-list').classList.remove('active');
+}
+function showList() {
+  document.getElementById('view-map').style.display = 'none';
+  document.getElementById('view-list').style.display = 'block';
+  document.getElementById('btn-list').classList.add('active');
+  document.getElementById('btn-map').classList.remove('active');
+}
+</script>
+</body>
+</html>

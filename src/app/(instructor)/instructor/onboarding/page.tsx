@@ -47,9 +47,9 @@ const STEPS = [
   },
   {
     id: "agenda",
-    label: "Configure sua agenda",
+    label: "Configure sua disponibilidade",
     description: "Defina seus horários disponíveis",
-    href: "/instructor/agenda",
+    href: "/instructor/disponibilidade",
     icon: CalendarDays,
   },
 ];

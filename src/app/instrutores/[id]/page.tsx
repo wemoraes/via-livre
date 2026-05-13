@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, MapPin, Star, Car } from "lucide-react";
 import { getInstructorPublicProfile } from "@/actions/search";
+
+export const dynamic = "force-dynamic";
 import AprovometroTag from "@/components/features/instructors/AprovometroTag";
 import { VehicleCategory } from "@prisma/client";
 import { Button } from "@/components/ui/button";

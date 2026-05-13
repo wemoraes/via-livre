@@ -2,23 +2,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { listInstructors } from "@/actions/admin";
 import { InstructorStatus } from "@prisma/client";
+import { INSTRUCTOR_STATUS_LABEL, INSTRUCTOR_STATUS_STYLE } from "@/lib/status-colors";
 import SuspendButton from "./SuspendButton";
-
-const STATUS_LABEL: Record<InstructorStatus, string> = {
-  PENDING: "Pendente",
-  UNDER_REVIEW: "Em revisão",
-  ACTIVE: "Ativo",
-  SUSPENDED: "Suspenso",
-  INACTIVE: "Inativo",
-};
-
-const STATUS_STYLE: Record<InstructorStatus, { color: string; bg: string }> = {
-  PENDING:      { color: "oklch(55% 0.12 85)",  bg: "oklch(96% 0.04 85)" },
-  UNDER_REVIEW: { color: "oklch(45% 0.12 235)",  bg: "oklch(93% 0.04 235)" },
-  ACTIVE:       { color: "var(--vl-accent)",      bg: "oklch(92% 0.07 145)" },
-  SUSPENDED:    { color: "oklch(50% 0.15 25)",    bg: "oklch(95% 0.04 25)" },
-  INACTIVE:     { color: "oklch(45% 0.03 0)",     bg: "oklch(95% 0.01 0)" },
-};
 
 export default async function AdminInstructoresPage() {
   const session = await auth();
@@ -61,11 +46,11 @@ export default async function AdminInstructoresPage() {
                     <span
                       className="text-xs px-2 py-0.5 rounded-full font-medium"
                       style={{
-                        color: STATUS_STYLE[inst.status as InstructorStatus].color,
-                        background: STATUS_STYLE[inst.status as InstructorStatus].bg,
+                        color: INSTRUCTOR_STATUS_STYLE[inst.status as InstructorStatus].color,
+                        background: INSTRUCTOR_STATUS_STYLE[inst.status as InstructorStatus].bg,
                       }}
                     >
-                      {STATUS_LABEL[inst.status as InstructorStatus]}
+                      {INSTRUCTOR_STATUS_LABEL[inst.status as InstructorStatus]}
                     </span>
                   </td>
                   <td className="px-4 py-3" style={{ color: "var(--vl-text-2)" }}>

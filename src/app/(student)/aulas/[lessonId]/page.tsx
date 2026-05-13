@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { ArrowLeft, Calendar, MapPin, Clock, CheckCircle2 } from "lucide-react";
 import { LessonStatus } from "@prisma/client";
+import { LESSON_STATUS_LABEL, LESSON_STATUS_STYLE } from "@/lib/status-colors";
 import ConfirmLessonButton from "./ConfirmLessonButton";
 import CancelLessonButton from "./CancelLessonButton";
 import RatingForm from "./RatingForm";
@@ -13,22 +14,6 @@ interface Props {
   params: Promise<{ lessonId: string }>;
   searchParams: Promise<{ booked?: string }>;
 }
-
-const STATUS_LABEL: Record<LessonStatus, string> = {
-  PENDING: "Aguardando pagamento",
-  CONFIRMED: "Confirmada",
-  COMPLETED: "Concluída",
-  CANCELLED: "Cancelada",
-  DISPUTED: "Em disputa",
-};
-
-const STATUS_STYLE: Record<LessonStatus, { color: string; bg: string }> = {
-  PENDING:   { color: "oklch(55% 0.12 85)",  bg: "oklch(96% 0.04 85)" },
-  CONFIRMED: { color: "var(--vl-accent)",     bg: "oklch(92% 0.07 145)" },
-  COMPLETED: { color: "oklch(45% 0.12 235)",  bg: "oklch(93% 0.04 235)" },
-  CANCELLED: { color: "oklch(50% 0.15 25)",   bg: "oklch(95% 0.04 25)" },
-  DISPUTED:  { color: "oklch(52% 0.14 50)",   bg: "oklch(95% 0.04 50)" },
-};
 
 export default async function LessonDetailPage({ params, searchParams }: Props) {
   const session = await auth();
@@ -95,11 +80,11 @@ export default async function LessonDetailPage({ params, searchParams }: Props) 
             <span
               className="text-xs px-2.5 py-1 rounded-full font-medium"
               style={{
-                color: STATUS_STYLE[lesson.status].color,
-                background: STATUS_STYLE[lesson.status].bg,
+                color: LESSON_STATUS_STYLE[lesson.status].color,
+                background: LESSON_STATUS_STYLE[lesson.status].bg,
               }}
             >
-              {STATUS_LABEL[lesson.status]}
+              {LESSON_STATUS_LABEL[lesson.status]}
             </span>
           </div>
 

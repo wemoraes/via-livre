@@ -3,23 +3,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { Calendar, ChevronRight, Search } from "lucide-react";
-import { LessonStatus } from "@prisma/client";
-
-const STATUS_LABEL: Record<LessonStatus, string> = {
-  PENDING: "Aguardando pagamento",
-  CONFIRMED: "Confirmada",
-  COMPLETED: "Concluída",
-  CANCELLED: "Cancelada",
-  DISPUTED: "Não compareceu",
-};
-
-const STATUS_STYLE: Record<LessonStatus, { color: string; bg: string }> = {
-  PENDING:   { color: "oklch(55% 0.12 85)",  bg: "oklch(96% 0.04 85)" },
-  CONFIRMED: { color: "var(--vl-accent)",     bg: "oklch(92% 0.07 145)" },
-  COMPLETED: { color: "oklch(45% 0.12 235)",  bg: "oklch(93% 0.04 235)" },
-  CANCELLED: { color: "oklch(50% 0.15 25)",   bg: "oklch(95% 0.04 25)" },
-  DISPUTED:  { color: "oklch(45% 0.08 0)",    bg: "oklch(95% 0.02 0)" },
-};
+import { LESSON_STATUS_LABEL, LESSON_STATUS_STYLE } from "@/lib/status-colors";
 
 const fmt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" });
 
@@ -87,11 +71,11 @@ export default async function AulasPage() {
                   <span
                     className="text-xs px-2.5 py-1 rounded-full font-medium shrink-0"
                     style={{
-                      color: STATUS_STYLE[lesson.status].color,
-                      background: STATUS_STYLE[lesson.status].bg,
+                      color: LESSON_STATUS_STYLE[lesson.status].color,
+                      background: LESSON_STATUS_STYLE[lesson.status].bg,
                     }}
                   >
-                    {STATUS_LABEL[lesson.status]}
+                    {LESSON_STATUS_LABEL[lesson.status]}
                   </span>
                   <ChevronRight size={15} style={{ color: "var(--vl-text-3)" }} className="shrink-0" />
                 </Link>

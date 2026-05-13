@@ -187,6 +187,7 @@ model InstructorProfile {
   documents    Document[]
   lessons      Lesson[]      @relation("InstructorLessons")
   availability Availability[]
+  timeBlocks   TimeBlock[]
 
   @@index([status])
   @@index([lat, lng])
@@ -254,6 +255,22 @@ model Availability {
 
   @@unique([instructorId, dayOfWeek, startTime])
   @@index([instructorId])
+}
+
+// ─── Time blocks (bloqueios pontuais na agenda do instrutor) ─────────────────
+
+model TimeBlock {
+  id           String   @id @default(cuid())
+  instructorId String
+  startsAt     DateTime
+  endsAt       DateTime
+  reason       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  instructor InstructorProfile @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
+  @@index([instructorId, startsAt])
 }
 
 // ─── Lessons ──────────────────────────────────────────────────────────────────

@@ -23,10 +23,18 @@ export interface WeekAvailabilitySlot {
   endTime: string;
 }
 
+export interface WeekTimeBlock {
+  id: string;
+  startsAt: Date;
+  endsAt: Date;
+  reason: string | null;
+}
+
 export interface InstructorWeekData {
   weekStart: Date;
   lessons: WeekLesson[];
   availability: WeekAvailabilitySlot[];
+  timeBlocks: WeekTimeBlock[];
 }
 
 const INSTRUCTOR_SHARE = 0.85;
@@ -40,13 +48,13 @@ export async function getInstructorWeekData(
     select: { id: true },
   });
   if (!profile) {
-    return { weekStart: startOfWeek(weekStart), lessons: [], availability: [] };
+    return { weekStart: startOfWeek(weekStart), lessons: [], availability: [], timeBlocks: [] };
   }
 
   const start = startOfWeek(weekStart);
   const end = addDays(start, 7);
 
-  const [lessons, availability] = await Promise.all([
+  const [lessons, availability, timeBlocks] = await Promise.all([
     prisma.lesson.findMany({
       where: {
         instructorId: profile.id,
@@ -62,6 +70,14 @@ export async function getInstructorWeekData(
     prisma.availability.findMany({
       where: { instructorId: profile.id, active: true },
       orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+    }),
+    prisma.timeBlock.findMany({
+      where: {
+        instructorId: profile.id,
+        startsAt: { lt: end },
+        endsAt: { gt: start },
+      },
+      orderBy: { startsAt: "asc" },
     }),
   ]);
 
@@ -86,5 +102,12 @@ export async function getInstructorWeekData(
     endTime: a.endTime,
   }));
 
-  return { weekStart: start, lessons: weekLessons, availability: slots };
+  const blocks: WeekTimeBlock[] = timeBlocks.map((b) => ({
+    id: b.id,
+    startsAt: b.startsAt,
+    endsAt: b.endsAt,
+    reason: b.reason,
+  }));
+
+  return { weekStart: start, lessons: weekLessons, availability: slots, timeBlocks: blocks };
 }

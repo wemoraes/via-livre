@@ -60,10 +60,11 @@ export default async function InstructorAgendaPage({ searchParams }: Props) {
         todayWeekStart={todayWeekStart}
         lessons={data.lessons}
         availability={data.availability}
+        timeBlocks={data.timeBlocks}
       />
 
       <p className="text-xs text-center mt-4" style={{ color: "var(--vl-text-3)" }}>
-        Story 8.2c em construção: adicionar bloqueios diretamente da grade.
+        Clique em qualquer slot vazio para bloquear o horário.
       </p>
     </div>
   );

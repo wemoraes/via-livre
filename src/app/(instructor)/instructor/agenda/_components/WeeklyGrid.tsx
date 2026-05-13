@@ -3,8 +3,9 @@
 import { useState, useCallback, useMemo } from "react";
 import { LessonStatus } from "@prisma/client";
 import { addDays, isSameDay, WEEKDAY_LABELS } from "@/lib/week";
-import type { WeekLesson, WeekAvailabilitySlot } from "../_data/week";
+import type { WeekLesson, WeekAvailabilitySlot, WeekTimeBlock } from "../_data/week";
 import LessonDetailPanel from "./LessonDetailPanel";
+import TimeBlockDialog from "./TimeBlockDialog";
 
 const HOUR_START = 6;
 const HOUR_END = 22;
@@ -19,11 +20,18 @@ const STATUS_STYLES: Record<LessonStatus, { bg: string; border: string; text: st
   DISPUTED:  { bg: "oklch(95% 0.04 50)",  border: "oklch(52% 0.14 50)",  text: "oklch(35% 0.10 50)" },
 };
 
+const BLOCK_STYLE = {
+  bg: "rgba(13,18,16,0.10)",
+  border: "rgba(13,18,16,0.25)",
+  text: "var(--vl-text-2)",
+} as const;
+
 interface Props {
   weekStart: Date;
   todayWeekStart: Date;
   lessons: WeekLesson[];
   availability: WeekAvailabilitySlot[];
+  timeBlocks: WeekTimeBlock[];
 }
 
 function timeToMinutes(t: string): number {
@@ -41,21 +49,42 @@ function isInAvailability(dayOfWeek: number, hour: number, slots: WeekAvailabili
   );
 }
 
-export default function WeeklyGrid({ weekStart, todayWeekStart, lessons, availability }: Props) {
+type DialogState =
+  | { mode: "create"; startsAt: Date; endsAt: Date }
+  | { mode: "remove"; blockId: string; startsAt: Date; endsAt: Date; reason: string | null }
+  | null;
+
+export default function WeeklyGrid({ weekStart, todayWeekStart, lessons, availability, timeBlocks }: Props) {
   const [selectedLesson, setSelectedLesson] = useState<WeekLesson | null>(null);
+  const [dialog, setDialog] = useState<DialogState>(null);
 
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
   const today = useMemo(() => new Date(), []);
   const isCurrentWeek = weekStart.getTime() === todayWeekStart.getTime();
 
-  const handleClick = useCallback((lesson: WeekLesson) => {
-    setSelectedLesson(lesson);
+  const handleLessonClick = useCallback((lesson: WeekLesson) => setSelectedLesson(lesson), []);
+
+  const handleSlotClick = useCallback((day: Date, hour: number) => {
+    const startsAt = new Date(day);
+    startsAt.setHours(hour, 0, 0, 0);
+    const endsAt = new Date(startsAt);
+    endsAt.setHours(hour + 1, 0, 0, 0);
+    setDialog({ mode: "create", startsAt, endsAt });
+  }, []);
+
+  const handleBlockClick = useCallback((block: WeekTimeBlock) => {
+    setDialog({
+      mode: "remove",
+      blockId: block.id,
+      startsAt: block.startsAt,
+      endsAt: block.endsAt,
+      reason: block.reason,
+    });
   }, []);
 
   return (
     <>
       <div className="glass-card rounded-2xl overflow-hidden">
-        {/* Header com dias */}
         <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b" style={{ borderColor: "rgba(13,18,16,0.06)" }}>
           <div className="px-2 py-2 text-[10px] uppercase font-semibold" style={{ color: "var(--vl-text-3)" }}>
             Hora
@@ -82,7 +111,6 @@ export default function WeeklyGrid({ weekStart, todayWeekStart, lessons, availab
           })}
         </div>
 
-        {/* Grid de horas */}
         <div className="grid grid-cols-[60px_repeat(7,1fr)] relative">
           {HOURS.map((h) => (
             <div
@@ -97,35 +125,72 @@ export default function WeeklyGrid({ weekStart, todayWeekStart, lessons, availab
             >
               {String(h).padStart(2, "0")}:00
             </div>
-          )).concat(
-            // Slots por dia
-            days.flatMap((d, dayIdx) =>
-              HOURS.map((h) => {
-                const inAvail = isInAvailability(d.getDay(), h, availability);
-                const isToday = isCurrentWeek && isSameDay(d, today);
-                return (
-                  <div
-                    key={`${dayIdx}-${h}`}
-                    className="border-t"
-                    style={{
-                      gridColumn: dayIdx + 2,
-                      gridRow: h - HOUR_START + 1,
-                      height: SLOT_HEIGHT_PX,
-                      background: !inAvail
-                        ? "rgba(13,18,16,0.03)"
-                        : isToday
-                        ? "oklch(92% 0.07 145 / 0.08)"
-                        : "transparent",
-                      borderColor: "rgba(13,18,16,0.04)",
-                      borderLeft: dayIdx === 0 ? "1px solid rgba(13,18,16,0.06)" : undefined,
-                    }}
-                  />
-                );
-              }),
-            ),
+          ))}
+
+          {/* Slots clicáveis por dia */}
+          {days.flatMap((d, dayIdx) =>
+            HOURS.map((h) => {
+              const inAvail = isInAvailability(d.getDay(), h, availability);
+              const isToday = isCurrentWeek && isSameDay(d, today);
+              return (
+                <button
+                  type="button"
+                  key={`${dayIdx}-${h}`}
+                  onClick={() => handleSlotClick(d, h)}
+                  aria-label={`Bloquear ${d.toLocaleDateString("pt-BR")} ${h}h`}
+                  className="border-t cursor-pointer hover:bg-black/[0.05] transition-colors"
+                  style={{
+                    gridColumn: dayIdx + 2,
+                    gridRow: h - HOUR_START + 1,
+                    height: SLOT_HEIGHT_PX,
+                    background: !inAvail
+                      ? "rgba(13,18,16,0.03)"
+                      : isToday
+                      ? "oklch(92% 0.07 145 / 0.08)"
+                      : "transparent",
+                    borderColor: "rgba(13,18,16,0.04)",
+                    borderLeft: dayIdx === 0 ? "1px solid rgba(13,18,16,0.06)" : undefined,
+                  }}
+                />
+              );
+            }),
           )}
 
-          {/* Lesson blocks (positioned absolutely over the grid) */}
+          {/* Time blocks (cinza, dashed) */}
+          {timeBlocks.map((block) => {
+            const dayIdx = block.startsAt.getDay();
+            const hour = block.startsAt.getHours() + block.startsAt.getMinutes() / 60;
+            const durationHours = (block.endsAt.getTime() - block.startsAt.getTime()) / 3_600_000;
+            const top = (hour - HOUR_START) * SLOT_HEIGHT_PX;
+            const height = durationHours * SLOT_HEIGHT_PX;
+            if (hour < HOUR_START || hour >= HOUR_END) return null;
+
+            return (
+              <button
+                key={block.id}
+                type="button"
+                onClick={() => handleBlockClick(block)}
+                className="absolute rounded-lg px-1.5 py-1 text-left transition-all hover:shadow-md"
+                style={{
+                  top,
+                  height: Math.max(height - 2, 28),
+                  left: `calc(60px + ${(dayIdx / 7) * 100}% - ${(dayIdx / 7) * 60}px + 2px)`,
+                  width: `calc(${100 / 7}% - ${60 / 7}px - 4px)`,
+                  background: BLOCK_STYLE.bg,
+                  border: `1px dashed ${BLOCK_STYLE.border}`,
+                  color: BLOCK_STYLE.text,
+                  fontSize: 10,
+                  lineHeight: 1.15,
+                  cursor: "pointer",
+                }}
+              >
+                <p className="font-semibold">Bloqueado</p>
+                {block.reason && <p className="text-[9px] opacity-75 truncate">{block.reason}</p>}
+              </button>
+            );
+          })}
+
+          {/* Lesson blocks */}
           {lessons.map((lesson) => {
             const d = new Date(lesson.scheduledAt);
             const dayIdx = d.getDay();
@@ -141,7 +206,7 @@ export default function WeeklyGrid({ weekStart, todayWeekStart, lessons, availab
               <button
                 key={lesson.id}
                 type="button"
-                onClick={() => handleClick(lesson)}
+                onClick={() => handleLessonClick(lesson)}
                 className="absolute rounded-lg px-1.5 py-1 text-left transition-all hover:shadow-md"
                 style={{
                   top,
@@ -168,6 +233,25 @@ export default function WeeklyGrid({ weekStart, todayWeekStart, lessons, availab
 
       {selectedLesson && (
         <LessonDetailPanel lesson={selectedLesson} onClose={() => setSelectedLesson(null)} />
+      )}
+
+      {dialog?.mode === "create" && (
+        <TimeBlockDialog
+          mode="create"
+          startsAt={dialog.startsAt}
+          endsAt={dialog.endsAt}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog?.mode === "remove" && (
+        <TimeBlockDialog
+          mode="remove"
+          blockId={dialog.blockId}
+          startsAt={dialog.startsAt}
+          endsAt={dialog.endsAt}
+          reason={dialog.reason}
+          onClose={() => setDialog(null)}
+        />
       )}
     </>
   );

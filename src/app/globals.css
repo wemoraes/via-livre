@@ -117,6 +117,51 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* ── ViaLivre brand tokens ──────────────────────────────────────────────────── */
+:root {
+  --vl-accent:       oklch(52% 0.17 145);
+  --vl-accent-light: oklch(92% 0.07 145);
+  --vl-accent-mid:   oklch(84% 0.11 145);
+  --vl-bg:           oklch(96.5% 0.018 145);
+  --vl-text-1:       #0d1210;
+  --vl-text-2:       #4a5449;
+  --vl-text-3:       #8a9888;
+}
+
+/* Glass card — nível 2 (auth / onboarding) */
+.glass-card {
+  background:        rgba(255, 255, 255, 0.78);
+  backdrop-filter:   blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border:            1px solid rgba(255, 255, 255, 0.88);
+  box-shadow:        0 8px 32px rgba(13, 18, 16, 0.12),
+                     0 2px 8px  rgba(13, 18, 16, 0.08),
+                     inset 0 1px 0 rgba(255, 255, 255, 0.68);
+}
+
+/* Mesh gradient — fundo das páginas de auth / onboarding */
+.vl-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 900px 700px at -5%  10%, oklch(68% 0.21 145 / 0.28), transparent 52%),
+    radial-gradient(ellipse 700px 900px at 108% 95%, oklch(56% 0.23 145 / 0.22), transparent 52%),
+    radial-gradient(ellipse 600px 500px at  55%  12%, oklch(78% 0.17 145 / 0.16), transparent 52%),
+    var(--vl-bg);
+}
+
+/* Input base com focus ring ViaLivre */
+.vl-input {
+  @apply w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white/60;
+  @apply focus:outline-none focus:border-transparent;
+  @apply transition-colors;
+  &:focus {
+    box-shadow: 0 0 0 2px oklch(52% 0.17 145 / 0.35);
+    border-color: transparent;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

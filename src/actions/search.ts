@@ -51,6 +51,7 @@ export async function searchInstructors(
   const profiles = await prisma.instructorProfile.findMany({
     where: {
       status: InstructorStatus.ACTIVE,
+      stripeOnboardingDone: true,
       ...(maxPrice ? { pricePerLesson: { lte: maxPrice } } : {}),
       ...(city ? { city: { equals: city, mode: "insensitive" } } : {}),
       ...(state ? { state: { equals: state } } : {}),

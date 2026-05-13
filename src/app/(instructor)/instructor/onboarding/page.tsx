@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition, useCallback } from "react";
 import Link from "next/link";
-import { CheckCircle2, User, Car, FileText, ChevronRight } from "lucide-react";
+import { CheckCircle2, User, Car, FileText, CreditCard, CalendarDays, ChevronRight, Clock } from "lucide-react";
 import ComplianceChecklist from "@/components/features/compliance/ComplianceChecklist";
 import { getOnboardingStatus } from "@/actions/instructor";
 
@@ -11,6 +11,9 @@ interface OnboardingData {
   approvedCount: number;
   profileComplete: boolean;
   hasVehicle: boolean;
+  stripeOnboardingDone: boolean;
+  hasAvailability: boolean;
+  submittedAt: Date | null;
 }
 
 const STEPS = [
@@ -32,10 +35,41 @@ const STEPS = [
     id: "documents",
     label: "Envie seus documentos",
     description: "CNH EAR, credenciamento SENATRAN e mais",
-    href: null, // inline checklist
+    href: null,
     icon: FileText,
   },
+  {
+    id: "stripe",
+    label: "Configure seus recebimentos",
+    description: "Conta bancária via Stripe — rápido e seguro",
+    href: "/instructor/onboarding/stripe",
+    icon: CreditCard,
+  },
+  {
+    id: "agenda",
+    label: "Configure sua agenda",
+    description: "Defina seus horários disponíveis",
+    href: "/instructor/agenda",
+    icon: CalendarDays,
+  },
 ];
+
+function formatDate(date: Date | null | string): string {
+  if (!date) return "";
+  const d = new Date(date);
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function addBusinessDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  let added = 0;
+  while (added < days) {
+    result.setDate(result.getDate() + 1);
+    const dow = result.getDay();
+    if (dow !== 0 && dow !== 6) added++;
+  }
+  return result;
+}
 
 export default function OnboardingPage() {
   const [data, setData] = useState<OnboardingData | null>(null);
@@ -54,75 +88,123 @@ export default function OnboardingPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
+      <main className="min-h-screen flex items-center justify-center p-6" style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}>
+        <div aria-hidden className="vl-mesh" />
         <p className="text-red-600 text-sm">{error}</p>
-      </div>
+      </main>
     );
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-6 h-6 border-2 border-[oklch(55%_0.17_145)] border-t-transparent rounded-full animate-spin" />
-      </div>
+      <main className="min-h-screen flex items-center justify-center p-6">
+        <div aria-hidden className="vl-mesh" />
+        <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--vl-accent) transparent var(--vl-accent) var(--vl-accent)" }} />
+      </main>
     );
   }
+
+  const docsSubmitted = data.documents.some((d) => d.status !== "PENDING");
+  const allDocsApproved = data.approvedCount === data.documents.length && data.documents.length > 0;
 
   const stepDone: Record<string, boolean> = {
     profile: data.profileComplete,
     vehicle: data.hasVehicle,
-    documents: data.approvedCount === data.documents.length,
+    documents: allDocsApproved,
+    stripe: data.stripeOnboardingDone,
+    agenda: data.hasAvailability,
   };
 
-  const allDone = Object.values(stepDone).every(Boolean);
+  const completedCount = Object.values(stepDone).filter(Boolean).length;
+  const allDone = completedCount === STEPS.length;
+  const progress = Math.round((completedCount / STEPS.length) * 100);
+
+  const eta = data.submittedAt ? addBusinessDays(new Date(data.submittedAt), 2) : null;
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 py-12">
+    <main
+      className="min-h-screen py-12 px-4"
+      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
+    >
+      <div aria-hidden className="vl-mesh" />
+
+      <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="mb-10">
-          <h1 className="text-2xl font-semibold text-gray-900">Bem-vindo à ViaLivre</h1>
-          <p className="text-gray-500 mt-1 text-sm">
-            Complete os passos abaixo para ativar seu perfil e começar a receber alunos.
+        <div className="mb-8">
+          <span className="text-xl font-black tracking-tight" style={{ color: "var(--vl-text-1)" }}>
+            Via<span style={{ color: "var(--vl-accent)" }}>.</span>Livre
+          </span>
+          <h1 className="text-2xl font-semibold mt-4" style={{ color: "var(--vl-text-1)" }}>
+            Ative seu perfil
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: "var(--vl-text-3)" }}>
+            Complete os passos abaixo para começar a receber alunos.
           </p>
+
+          {/* Progress bar */}
+          <div className="mt-5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs font-medium" style={{ color: "var(--vl-text-3)" }}>
+                {completedCount} de {STEPS.length} etapas concluídas
+              </span>
+              <span className="text-xs font-semibold" style={{ color: "var(--vl-accent)" }}>{progress}%</span>
+            </div>
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(13,18,16,0.08)" }}>
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${progress}%`, background: "var(--vl-accent)" }}
+              />
+            </div>
+          </div>
         </div>
 
+        {/* All done banner */}
         {allDone && (
-          <div className="mb-8 flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-            <CheckCircle2 size={20} className="text-green-600 shrink-0" />
-            <p className="text-sm text-green-800 font-medium">
+          <div className="glass-card rounded-2xl px-5 py-4 mb-6 flex items-center gap-3">
+            <CheckCircle2 size={20} style={{ color: "oklch(52% 0.17 145)" }} className="shrink-0" />
+            <p className="text-sm font-medium" style={{ color: "var(--vl-text-1)" }}>
               Tudo pronto! Seu perfil está em análise. Você receberá um e-mail quando for aprovado.
             </p>
           </div>
         )}
 
-        <div className="space-y-4">
-          {/* Profile step */}
-          <StepCard
-            step={STEPS[0]}
-            done={stepDone.profile}
-          />
+        {/* SLA notice when docs submitted and not yet all approved */}
+        {docsSubmitted && !allDocsApproved && data.submittedAt && (
+          <div className="glass-card rounded-2xl px-5 py-4 mb-6 flex items-start gap-3">
+            <Clock size={18} style={{ color: "var(--vl-accent)" }} className="shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium" style={{ color: "var(--vl-text-1)" }}>
+                Documentos em análise
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--vl-text-3)" }}>
+                Enviados em {formatDate(data.submittedAt)}
+                {eta && ` · Previsão de resposta: ${formatDate(eta)}`}
+                {" · "}Análise em até 48h úteis.
+              </p>
+            </div>
+          </div>
+        )}
 
-          {/* Vehicle step */}
-          <StepCard
-            step={STEPS[1]}
-            done={stepDone.vehicle}
-          />
+        <div className="space-y-3">
+          {/* Steps 1–2: Profile & Vehicle */}
+          <StepCard step={STEPS[0]} done={stepDone.profile} />
+          <StepCard step={STEPS[1]} done={stepDone.vehicle} />
 
-          {/* Documents step — inline */}
-          <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+          {/* Step 3: Documents — inline checklist */}
+          <div className="glass-card rounded-2xl overflow-hidden">
             <div className="flex items-start gap-4 p-5">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                stepDone.documents ? "bg-green-50" : "bg-gray-50"
-              }`}>
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: stepDone.documents ? "oklch(92% 0.07 145)" : "rgba(13,18,16,0.05)" }}
+              >
                 {stepDone.documents
-                  ? <CheckCircle2 size={20} className="text-green-600" />
-                  : <FileText size={20} className="text-gray-400" />
+                  ? <CheckCircle2 size={20} style={{ color: "var(--vl-accent)" }} />
+                  : <FileText size={20} style={{ color: "var(--vl-text-3)" }} />
                 }
               </div>
               <div>
-                <p className="font-medium text-gray-900 text-sm">{STEPS[2].label}</p>
-                <p className="text-gray-500 text-xs mt-0.5">{STEPS[2].description}</p>
+                <p className="font-medium text-sm" style={{ color: "var(--vl-text-1)" }}>{STEPS[2].label}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--vl-text-3)" }}>{STEPS[2].description}</p>
               </div>
             </div>
             <div className="px-5 pb-5">
@@ -133,6 +215,12 @@ export default function OnboardingPage() {
               />
             </div>
           </div>
+
+          {/* Step 4: Stripe */}
+          <StepCard step={STEPS[3]} done={stepDone.stripe} />
+
+          {/* Step 5: Agenda */}
+          <StepCard step={STEPS[4]} done={stepDone.agenda} />
         </div>
       </div>
     </main>
@@ -151,21 +239,23 @@ function StepCard({
   return (
     <Link
       href={step.href ?? "#"}
-      className="flex items-center gap-4 bg-white border border-gray-100 rounded-2xl p-5 hover:border-gray-200 transition-colors"
+      className="glass-card rounded-2xl flex items-center gap-4 p-5 transition-all hover:shadow-lg"
+      style={{ textDecoration: "none" }}
     >
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-        done ? "bg-green-50" : "bg-gray-50"
-      }`}>
+      <div
+        className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+        style={{ background: done ? "oklch(92% 0.07 145)" : "rgba(13,18,16,0.05)" }}
+      >
         {done
-          ? <CheckCircle2 size={20} className="text-green-600" />
-          : <Icon size={20} className="text-gray-400" />
+          ? <CheckCircle2 size={20} style={{ color: "var(--vl-accent)" }} />
+          : <Icon size={20} style={{ color: "var(--vl-text-3)" }} />
         }
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-gray-900 text-sm">{step.label}</p>
-        <p className="text-gray-500 text-xs mt-0.5">{step.description}</p>
+        <p className="font-medium text-sm" style={{ color: "var(--vl-text-1)" }}>{step.label}</p>
+        <p className="text-xs mt-0.5" style={{ color: "var(--vl-text-3)" }}>{step.description}</p>
       </div>
-      {!done && <ChevronRight size={16} className="text-gray-400 shrink-0" />}
+      {!done && <ChevronRight size={16} style={{ color: "var(--vl-text-3)" }} className="shrink-0" />}
     </Link>
   );
 }

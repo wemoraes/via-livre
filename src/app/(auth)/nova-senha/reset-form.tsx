@@ -41,9 +41,9 @@ export default function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-        <p className="text-gray-500 text-sm">Link inválido.</p>
-        <Link href="/recuperar-senha" className="block mt-4 text-sm text-[oklch(55%_0.17_145)] hover:underline">
+      <div className="glass-card rounded-2xl p-8 text-center">
+        <p className="text-sm" style={{ color: "var(--vl-text-3)" }}>Link inválido.</p>
+        <Link href="/recuperar-senha" className="block mt-4 text-sm hover:underline" style={{ color: "var(--vl-accent)" }}>
           Solicitar novo link
         </Link>
       </div>
@@ -51,17 +51,22 @@ export default function ResetPasswordForm() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Nova senha</h1>
-        <p className="text-gray-500 mt-1 text-sm">Escolha uma senha segura para sua conta.</p>
+    <div className="glass-card rounded-2xl p-8">
+      <div className="mb-2 text-center">
+        <span className="text-xl font-black tracking-tight" style={{ color: "var(--vl-text-1)" }}>
+          Via<span style={{ color: "var(--vl-accent)" }}>.</span>Livre
+        </span>
+      </div>
+      <div className="mb-8 mt-6">
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--vl-text-1)" }}>Nova senha</h1>
+        <p className="mt-1 text-sm" style={{ color: "var(--vl-text-3)" }}>Escolha uma senha segura para sua conta.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <input type="hidden" {...register("token")} />
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium mb-1" style={{ color: "var(--vl-text-2)" }}>
             Nova senha
           </label>
           <div className="relative">
@@ -70,7 +75,7 @@ export default function ResetPasswordForm() {
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               aria-describedby={errors.password ? "password-error" : undefined}
-              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[oklch(55%_0.17_145)] focus:border-transparent"
+              className="vl-input pr-10"
               {...register("password")}
             />
             <button
@@ -90,7 +95,7 @@ export default function ResetPasswordForm() {
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1" style={{ color: "var(--vl-text-2)" }}>
             Confirmar nova senha
           </label>
           <input
@@ -98,7 +103,7 @@ export default function ResetPasswordForm() {
             type={showPassword ? "text" : "password"}
             autoComplete="new-password"
             aria-describedby={errors.confirmPassword ? "confirm-error" : undefined}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[oklch(55%_0.17_145)] focus:border-transparent"
+            className="vl-input"
             {...register("confirmPassword")}
           />
           {errors.confirmPassword && (

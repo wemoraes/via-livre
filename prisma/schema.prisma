@@ -157,6 +157,7 @@ model InstructorProfile {
   id             String           @id @default(cuid())
   userId         String           @unique
   status         InstructorStatus @default(PENDING)
+  cpf            String?
   bio            String?
   phone          String?
   profileImage   String?          // Supabase Storage path

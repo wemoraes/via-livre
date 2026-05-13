@@ -12,6 +12,7 @@ const PUBLIC_PREFIXES = [
   "/cadastro",
   "/recuperar-senha",
   "/nova-senha",
+  "/verificar-email",
 ];
 
 const PUBLIC_EXACT = ["/", "/para-instrutores", "/buscar", "/sobre", "/403", "/termos", "/privacidade"];

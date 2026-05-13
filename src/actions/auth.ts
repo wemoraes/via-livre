@@ -57,12 +57,14 @@ export async function registerInstructor(
   const parsed = RegisterInstructorSchema.safeParse(input);
   if (!parsed.success) return err(parsed.error.issues[0].message);
 
-  const { name, email, password } = parsed.data;
+  const { name, email, password, cpf } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return err("Este email já está cadastrado");
 
   const passwordHash = await bcryptHash(password, 12);
+
+  const cleanCpf = cpf.replace(/\D/g, "");
 
   const user = await prisma.user.create({
     data: {
@@ -71,17 +73,12 @@ export async function registerInstructor(
       password: passwordHash,
       role: UserRole.INSTRUCTOR,
       instructorProfile: {
-        create: { pricePerLesson: 0 },
+        create: { pricePerLesson: 0, cpf: cleanCpf },
       },
     },
   });
 
-  await resend.emails.send({
-    from: "ViaLivre <noreply@viaLivre.com.br>",
-    to: email,
-    subject: "Bem-vindo ao ViaLivre! Próximos passos",
-    html: `<p>Olá ${name},</p><p>Sua conta foi criada. Complete seu perfil de instrutor para começar a receber alunos.</p>`,
-  });
+  await sendVerificationEmail(user.id, email, name ?? "");
 
   return ok({ userId: user.id });
 }
@@ -188,6 +185,32 @@ export async function resetPassword(
 }
 
 // ─── Email Verification ───────────────────────────────────────────────────────
+
+// ─── Verify Email ─────────────────────────────────────────────────────────────
+
+export async function verifyEmail(rawToken: string): Promise<ActionResult<void>> {
+  if (!rawToken) return err("Token inválido");
+
+  const hashed = hash("sha256", rawToken);
+
+  const record = await prisma.verificationToken.findUnique({
+    where: { token: hashed },
+  });
+
+  if (!record) return err("Link inválido ou já utilizado");
+  if (record.expires < new Date()) return err("Link expirado");
+
+  const email = record.identifier.replace("verify:", "");
+
+  await prisma.$transaction([
+    prisma.user.update({ where: { email }, data: { emailVerified: new Date() } }),
+    prisma.verificationToken.delete({ where: { token: hashed } }),
+  ]);
+
+  return ok(undefined);
+}
+
+// ─── Send Verification Email (internal) ───────────────────────────────────────
 
 async function sendVerificationEmail(userId: string, email: string, name: string) {
   const token = randomBytes(32).toString("hex");

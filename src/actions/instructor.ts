@@ -96,6 +96,9 @@ export async function getOnboardingStatus(): Promise<
     approvedCount: number;
     profileComplete: boolean;
     hasVehicle: boolean;
+    stripeOnboardingDone: boolean;
+    hasAvailability: boolean;
+    submittedAt: Date | null;
   }>
 > {
   const session = await auth();
@@ -104,8 +107,9 @@ export async function getOnboardingStatus(): Promise<
   const profile = await prisma.instructorProfile.findUnique({
     where: { userId: session.user.id },
     include: {
-      documents: { select: { type: true, status: true, reviewNote: true } },
+      documents: { select: { type: true, status: true, reviewNote: true, updatedAt: true } },
       vehicles: { where: { active: true }, select: { id: true } },
+      availability: { where: { active: true }, select: { id: true } },
     },
   });
 
@@ -123,8 +127,23 @@ export async function getOnboardingStatus(): Promise<
   const approvedCount = documents.filter((d) => d.status === "APPROVED").length;
   const profileComplete = Boolean(profile.bio && Number(profile.pricePerLesson) > 0 && profile.city);
   const hasVehicle = profile.vehicles.length > 0;
+  const hasAvailability = profile.availability.length > 0;
 
-  return ok({ documents, approvedCount, profileComplete, hasVehicle });
+  // Earliest submission time (first doc that left PENDING state)
+  const submittedDocs = profile.documents.filter((d) => d.status !== "PENDING");
+  const submittedAt = submittedDocs.length > 0
+    ? submittedDocs.reduce((min, d) => d.updatedAt < min ? d.updatedAt : min, submittedDocs[0].updatedAt)
+    : null;
+
+  return ok({
+    documents,
+    approvedCount,
+    profileComplete,
+    hasVehicle,
+    stripeOnboardingDone: profile.stripeOnboardingDone,
+    hasAvailability,
+    submittedAt,
+  });
 }
 
 // ─── Story 3.5: Check & suspend expired documents (called by QStash daily job) ─

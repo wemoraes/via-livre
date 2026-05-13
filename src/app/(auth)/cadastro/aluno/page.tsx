@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterStudentPage() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -37,26 +35,38 @@ export default function RegisterStudentPage() {
 
   if (success) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+      <div className="glass-card rounded-2xl p-8 text-center">
         <div className="text-4xl mb-4">✉️</div>
-        <h1 className="text-xl font-semibold text-gray-900 mb-2">Confirme seu email</h1>
-        <p className="text-gray-500 text-sm">
-          Enviamos um link de confirmação para o seu email. Verifique sua caixa de entrada.
+        <h1 className="text-xl font-semibold mb-2" style={{ color: "var(--vl-text-1)" }}>
+          Confirme seu email
+        </h1>
+        <p className="text-sm" style={{ color: "var(--vl-text-3)" }}>
+          Enviamos um link de confirmação para o seu email. Verifique sua caixa de entrada e clique no link para ativar sua conta.
         </p>
+        <Link href="/entrar" className="block mt-6 text-sm hover:underline" style={{ color: "var(--vl-accent)" }}>
+          Voltar para o login
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Criar conta — Aluno</h1>
-        <p className="text-gray-500 mt-1 text-sm">Encontre instrutores credenciados perto de você</p>
+    <div className="glass-card rounded-2xl p-8">
+      <div className="mb-2 text-center">
+        <span className="text-xl font-black tracking-tight" style={{ color: "var(--vl-text-1)" }}>
+          Via<span style={{ color: "var(--vl-accent)" }}>.</span>Livre
+        </span>
+      </div>
+      <div className="mb-8 mt-6">
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--vl-text-1)" }}>Criar conta</h1>
+        <p className="mt-1 text-sm" style={{ color: "var(--vl-text-3)" }}>
+          Encontre instrutores credenciados perto de você
+        </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="name" className="block text-sm font-medium mb-1" style={{ color: "var(--vl-text-2)" }}>
             Nome completo
           </label>
           <input
@@ -64,7 +74,7 @@ export default function RegisterStudentPage() {
             type="text"
             autoComplete="name"
             aria-describedby={errors.name ? "name-error" : undefined}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[oklch(55%_0.17_145)] focus:border-transparent"
+            className="vl-input"
             {...register("name")}
           />
           {errors.name && (
@@ -75,7 +85,7 @@ export default function RegisterStudentPage() {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium mb-1" style={{ color: "var(--vl-text-2)" }}>
             Email
           </label>
           <input
@@ -83,7 +93,7 @@ export default function RegisterStudentPage() {
             type="email"
             autoComplete="email"
             aria-describedby={errors.email ? "email-error" : undefined}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[oklch(55%_0.17_145)] focus:border-transparent"
+            className="vl-input"
             {...register("email")}
           />
           {errors.email && (
@@ -94,7 +104,7 @@ export default function RegisterStudentPage() {
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="password" className="block text-sm font-medium mb-1" style={{ color: "var(--vl-text-2)" }}>
             Senha
           </label>
           <div className="relative">
@@ -103,7 +113,7 @@ export default function RegisterStudentPage() {
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               aria-describedby={errors.password ? "password-error" : "password-hint"}
-              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[oklch(55%_0.17_145)] focus:border-transparent"
+              className="vl-input pr-10"
               {...register("password")}
             />
             <button
@@ -120,7 +130,7 @@ export default function RegisterStudentPage() {
               {errors.password.message}
             </p>
           ) : (
-            <p id="password-hint" className="text-gray-400 text-xs mt-1">
+            <p id="password-hint" className="text-xs mt-1" style={{ color: "var(--vl-text-3)" }}>
               Mínimo 8 caracteres
             </p>
           )}
@@ -137,17 +147,17 @@ export default function RegisterStudentPage() {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-gray-500 mt-6">
+      <p className="text-center text-sm mt-6" style={{ color: "var(--vl-text-3)" }}>
         Já tem conta?{" "}
-        <Link href="/entrar" className="text-[oklch(55%_0.17_145)] font-medium hover:underline">
+        <Link href="/entrar" className="font-medium hover:underline" style={{ color: "var(--vl-accent)" }}>
           Entrar
         </Link>
       </p>
 
-      <div className="border-t border-gray-100 mt-6 pt-4 text-center">
-        <p className="text-xs text-gray-400">
+      <div className="border-t border-white/40 mt-6 pt-4 text-center">
+        <p className="text-xs" style={{ color: "var(--vl-text-3)" }}>
           É instrutor?{" "}
-          <Link href="/cadastro/instrutor" className="underline hover:text-gray-600">
+          <Link href="/cadastro/instrutor" className="underline hover:opacity-70">
             Cadastre-se como instrutor
           </Link>
         </p>

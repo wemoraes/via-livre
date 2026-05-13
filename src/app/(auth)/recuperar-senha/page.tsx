@@ -27,13 +27,15 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+      <div className="glass-card rounded-2xl p-8 text-center">
         <div className="text-4xl mb-4">✉️</div>
-        <h1 className="text-xl font-semibold text-gray-900 mb-2">Verifique seu email</h1>
-        <p className="text-gray-500 text-sm">
+        <h1 className="text-xl font-semibold mb-2" style={{ color: "var(--vl-text-1)" }}>
+          Verifique seu email
+        </h1>
+        <p className="text-sm" style={{ color: "var(--vl-text-3)" }}>
           Se o email existir, você receberá as instruções de recuperação em breve.
         </p>
-        <Link href="/entrar" className="block mt-6 text-sm text-[oklch(55%_0.17_145)] hover:underline">
+        <Link href="/entrar" className="block mt-6 text-sm hover:underline" style={{ color: "var(--vl-accent)" }}>
           Voltar para o login
         </Link>
       </div>
@@ -41,17 +43,22 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Recuperar senha</h1>
-        <p className="text-gray-500 mt-1 text-sm">
+    <div className="glass-card rounded-2xl p-8">
+      <div className="mb-2 text-center">
+        <span className="text-xl font-black tracking-tight" style={{ color: "var(--vl-text-1)" }}>
+          Via<span style={{ color: "var(--vl-accent)" }}>.</span>Livre
+        </span>
+      </div>
+      <div className="mb-8 mt-6">
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--vl-text-1)" }}>Recuperar senha</h1>
+        <p className="mt-1 text-sm" style={{ color: "var(--vl-text-3)" }}>
           Informe seu email e enviaremos um link para criar nova senha.
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium mb-1" style={{ color: "var(--vl-text-2)" }}>
             Email
           </label>
           <input
@@ -59,7 +66,7 @@ export default function ForgotPasswordPage() {
             type="email"
             autoComplete="email"
             aria-describedby={errors.email ? "email-error" : undefined}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[oklch(55%_0.17_145)] focus:border-transparent"
+            className="vl-input"
             {...register("email")}
           />
           {errors.email && (
@@ -75,7 +82,7 @@ export default function ForgotPasswordPage() {
       </form>
 
       <p className="text-center mt-6">
-        <Link href="/entrar" className="text-sm text-gray-500 hover:text-gray-700">
+        <Link href="/entrar" className="text-sm hover:underline" style={{ color: "var(--vl-text-3)" }}>
           Voltar para o login
         </Link>
       </p>

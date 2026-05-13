@@ -39,9 +39,11 @@ export default function AgendaPage() {
     if (exists) {
       setSlots(slots.filter((s) => s.dayOfWeek !== day));
     } else {
-      setSlots([...slots, { dayOfWeek: day, startTime: "08:00", endTime: "18:00" }].sort(
-        (a, b) => a.dayOfWeek - b.dayOfWeek,
-      ));
+      setSlots(
+        [...slots, { dayOfWeek: day, startTime: "08:00", endTime: "18:00" }].sort(
+          (a, b) => a.dayOfWeek - b.dayOfWeek,
+        ),
+      );
     }
   }
 
@@ -66,83 +68,99 @@ export default function AgendaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-xl mx-auto px-4 py-10">
+    <main
+      className="min-h-screen py-10 px-4"
+      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
+    >
+      <div aria-hidden className="vl-mesh" />
+
+      <div className="max-w-xl mx-auto">
         <Link
           href="/instructor/onboarding"
-          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-8"
+          className="inline-flex items-center gap-1 text-sm mb-8 hover:opacity-70"
+          style={{ color: "var(--vl-text-3)" }}
         >
           <ArrowLeft size={14} />
           Voltar
         </Link>
 
-        <h1 className="text-2xl font-semibold text-gray-900 mb-1">Minha agenda</h1>
-        <p className="text-sm text-gray-500 mb-8">
-          Configure os dias e horários em que você está disponível para dar aulas.
-        </p>
+        <div className="glass-card rounded-2xl p-8">
+          <h1 className="text-2xl font-semibold mb-1" style={{ color: "var(--vl-text-1)" }}>
+            Minha agenda
+          </h1>
+          <p className="text-sm mb-8" style={{ color: "var(--vl-text-3)" }}>
+            Configure os dias e horários em que você está disponível para dar aulas.
+          </p>
 
-        <div className="space-y-3">
-          {DAYS.map(({ value, label }) => {
-            const slot = slots.find((s) => s.dayOfWeek === value);
-            const active = Boolean(slot);
+          <div className="space-y-2">
+            {DAYS.map(({ value, label }) => {
+              const slot = slots.find((s) => s.dayOfWeek === value);
+              const active = Boolean(slot);
 
-            return (
-              <div
-                key={value}
-                className={`bg-white border rounded-2xl p-4 transition-colors ${
-                  active ? "border-gray-200" : "border-gray-100 opacity-60"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id={`day-${value}`}
-                    checked={active}
-                    onChange={() => toggleDay(value)}
-                    className="w-4 h-4 accent-[oklch(55%_0.17_145)]"
-                  />
-                  <label htmlFor={`day-${value}`} className="font-medium text-sm text-gray-900 flex-1 cursor-pointer">
-                    {label}
-                  </label>
+              return (
+                <div
+                  key={value}
+                  className="rounded-xl p-4 transition-all"
+                  style={{
+                    background: active ? "rgba(255,255,255,0.55)" : "rgba(13,18,16,0.03)",
+                    border: `1px solid ${active ? "rgba(255,255,255,0.7)" : "rgba(13,18,16,0.06)"}`,
+                    opacity: active ? 1 : 0.65,
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id={`day-${value}`}
+                      checked={active}
+                      onChange={() => toggleDay(value)}
+                      className="w-4 h-4"
+                      style={{ accentColor: "var(--vl-accent)" }}
+                    />
+                    <label
+                      htmlFor={`day-${value}`}
+                      className="font-medium text-sm flex-1 cursor-pointer"
+                      style={{ color: "var(--vl-text-1)" }}
+                    >
+                      {label}
+                    </label>
 
-                  {active && slot && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <input
-                        type="time"
-                        value={slot.startTime}
-                        onChange={(e) => updateSlot(value, "startTime", e.target.value)}
-                        className="border border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[oklch(55%_0.17_145)]"
-                      />
-                      <span className="text-gray-400">até</span>
-                      <input
-                        type="time"
-                        value={slot.endTime}
-                        onChange={(e) => updateSlot(value, "endTime", e.target.value)}
-                        className="border border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[oklch(55%_0.17_145)]"
-                      />
-                    </div>
-                  )}
+                    {active && slot && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <input
+                          type="time"
+                          value={slot.startTime}
+                          onChange={(e) => updateSlot(value, "startTime", e.target.value)}
+                          className="vl-input py-1 px-2 w-auto text-xs"
+                        />
+                        <span style={{ color: "var(--vl-text-3)" }}>até</span>
+                        <input
+                          type="time"
+                          value={slot.endTime}
+                          onChange={(e) => updateSlot(value, "endTime", e.target.value)}
+                          className="vl-input py-1 px-2 w-auto text-xs"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+
+          {error && (
+            <p role="alert" className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2 mt-4">{error}</p>
+          )}
+          {saved && (
+            <p role="status" className="text-sm rounded-lg px-3 py-2 mt-4" style={{ color: "var(--vl-accent)", background: "oklch(92% 0.07 145)" }}>
+              Agenda salva com sucesso!
+            </p>
+          )}
+
+          <Button onClick={handleSave} disabled={isPending} className="w-full mt-6">
+            <Save size={15} className="mr-2" />
+            {isPending ? "Salvando…" : "Salvar agenda"}
+          </Button>
         </div>
-
-        {error && (
-          <p role="alert" className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2 mt-4">
-            {error}
-          </p>
-        )}
-        {saved && (
-          <p role="status" className="text-green-700 text-sm bg-green-50 rounded-lg px-3 py-2 mt-4">
-            Agenda salva!
-          </p>
-        )}
-
-        <Button onClick={handleSave} disabled={isPending} className="w-full mt-6">
-          <Save size={15} className="mr-2" />
-          {isPending ? "Salvando…" : "Salvar agenda"}
-        </Button>
       </div>
     </main>
   );

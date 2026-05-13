@@ -16,10 +16,17 @@ export default function StripeRefreshPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white border border-gray-100 rounded-2xl p-8 text-center">
-        <h1 className="text-xl font-semibold text-gray-900 mb-2">Link expirado</h1>
-        <p className="text-sm text-gray-500 mb-6">
+    <main
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
+    >
+      <div aria-hidden className="vl-mesh" />
+
+      <div className="glass-card rounded-2xl p-8 max-w-md w-full text-center">
+        <h1 className="text-xl font-semibold mb-2" style={{ color: "var(--vl-text-1)" }}>
+          Link expirado
+        </h1>
+        <p className="text-sm mb-6" style={{ color: "var(--vl-text-3)" }}>
           O link de configuração do Stripe expirou. Gere um novo para continuar.
         </p>
         <Button onClick={handleRetry} disabled={isPending} className="w-full">

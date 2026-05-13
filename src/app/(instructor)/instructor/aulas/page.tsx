@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { Calendar, ChevronRight } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { LessonStatus } from "@prisma/client";
 import InstructorConfirmButton from "./InstructorConfirmButton";
 
@@ -14,12 +14,12 @@ const STATUS_LABEL: Record<LessonStatus, string> = {
   DISPUTED: "Em disputa",
 };
 
-const STATUS_COLOR: Record<LessonStatus, string> = {
-  PENDING: "text-yellow-700 bg-yellow-50",
-  CONFIRMED: "text-green-700 bg-green-50",
-  COMPLETED: "text-blue-700 bg-blue-50",
-  CANCELLED: "text-red-700 bg-red-50",
-  DISPUTED: "text-orange-700 bg-orange-50",
+const STATUS_STYLE: Record<LessonStatus, { color: string; bg: string }> = {
+  PENDING:   { color: "oklch(55% 0.12 85)",  bg: "oklch(96% 0.04 85)" },
+  CONFIRMED: { color: "var(--vl-accent)",     bg: "oklch(92% 0.07 145)" },
+  COMPLETED: { color: "oklch(45% 0.12 235)",  bg: "oklch(93% 0.04 235)" },
+  CANCELLED: { color: "oklch(50% 0.15 25)",   bg: "oklch(95% 0.04 25)" },
+  DISPUTED:  { color: "oklch(52% 0.14 50)",   bg: "oklch(95% 0.04 50)" },
 };
 
 export default async function InstructorAulasPage() {
@@ -45,44 +45,52 @@ export default async function InstructorAulasPage() {
     (l) => l.status !== LessonStatus.CONFIRMED || l.scheduledAt <= new Date(),
   );
 
+  const fmt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" });
+
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-8">Minhas aulas</h1>
+    <main
+      className="min-h-screen py-10 px-4"
+      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
+    >
+      <div aria-hidden className="vl-mesh" />
+
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-semibold mb-8" style={{ color: "var(--vl-text-1)" }}>
+          Minhas aulas
+        </h1>
 
         {lessons.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <Calendar size={40} className="mx-auto mb-3 opacity-40" />
-            <p className="text-sm">Nenhuma aula agendada ainda.</p>
+          <div className="glass-card rounded-2xl py-16 text-center">
+            <Calendar size={40} className="mx-auto mb-3" style={{ color: "var(--vl-text-3)", opacity: 0.5 }} />
+            <p className="text-sm" style={{ color: "var(--vl-text-3)" }}>Nenhuma aula agendada ainda.</p>
           </div>
         ) : (
           <>
             {upcoming.length > 0 && (
               <section className="mb-8">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                <h2 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "var(--vl-text-3)" }}>
                   Próximas aulas
                 </h2>
                 <ul className="space-y-3">
                   {upcoming.map((lesson) => (
-                    <li key={lesson.id} className="bg-white border border-gray-100 rounded-2xl p-4">
+                    <li key={lesson.id} className="glass-card rounded-2xl p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm text-gray-900 truncate">
+                          <p className="font-medium text-sm truncate" style={{ color: "var(--vl-text-1)" }}>
                             {lesson.student.user.name}
                           </p>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {new Intl.DateTimeFormat("pt-BR", {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                            }).format(lesson.scheduledAt)}
+                          <p className="text-xs mt-0.5" style={{ color: "var(--vl-text-3)" }}>
+                            {fmt.format(lesson.scheduledAt)}
                           </p>
-                          <p className="text-xs text-gray-400 mt-0.5">{lesson.meetingPoint}</p>
+                          <p className="text-xs mt-0.5" style={{ color: "var(--vl-text-3)" }}>{lesson.meetingPoint}</p>
                         </div>
-                        {!lesson.instructorConfirmed && (
+                        {!lesson.instructorConfirmed ? (
                           <InstructorConfirmButton lessonId={lesson.id} />
-                        )}
-                        {lesson.instructorConfirmed && (
-                          <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full shrink-0">
+                        ) : (
+                          <span
+                            className="text-xs px-2 py-1 rounded-full shrink-0 font-medium"
+                            style={{ color: "var(--vl-accent)", background: "oklch(92% 0.07 145)" }}
+                          >
                             Confirmada por você
                           </span>
                         )}
@@ -94,25 +102,28 @@ export default async function InstructorAulasPage() {
             )}
 
             <section>
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <h2 className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "var(--vl-text-3)" }}>
                 Histórico
               </h2>
               <ul className="space-y-3">
                 {past.map((lesson) => (
-                  <li key={lesson.id} className="bg-white border border-gray-100 rounded-2xl p-4">
+                  <li key={lesson.id} className="glass-card rounded-2xl p-4">
                     <div className="flex items-center gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm text-gray-900 truncate">
+                        <p className="font-medium text-sm truncate" style={{ color: "var(--vl-text-1)" }}>
                           {lesson.student.user.name}
                         </p>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {new Intl.DateTimeFormat("pt-BR", {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          }).format(lesson.scheduledAt)}
+                        <p className="text-xs mt-0.5" style={{ color: "var(--vl-text-3)" }}>
+                          {fmt.format(lesson.scheduledAt)}
                         </p>
                       </div>
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${STATUS_COLOR[lesson.status]}`}>
+                      <span
+                        className="text-xs px-2.5 py-1 rounded-full font-medium shrink-0"
+                        style={{
+                          color: STATUS_STYLE[lesson.status].color,
+                          background: STATUS_STYLE[lesson.status].bg,
+                        }}
+                      >
                         {STATUS_LABEL[lesson.status]}
                       </span>
                     </div>
@@ -122,6 +133,14 @@ export default async function InstructorAulasPage() {
             </section>
           </>
         )}
+
+        <Link
+          href="/instructor/onboarding"
+          className="block text-center text-xs mt-8 hover:underline"
+          style={{ color: "var(--vl-text-3)" }}
+        >
+          Voltar ao onboarding
+        </Link>
       </div>
     </main>
   );

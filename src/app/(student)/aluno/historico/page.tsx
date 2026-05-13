@@ -1,29 +1,62 @@
-import { History } from "lucide-react";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { auth } from "@/auth";
+import { getStudentHistoryData } from "./_data/history";
+import type { StatusFilter } from "./_data/history";
+import RatingPrompt from "./_components/RatingPrompt";
+import LessonTimeline from "./_components/LessonTimeline";
+import HistoryFilters from "./_components/HistoryFilters";
+import EmptyHistory from "./_components/EmptyHistory";
 
-export default function StudentHistoricoPage() {
+const VALID_STATUSES = new Set(["ALL", "COMPLETED", "CANCELLED", "DISPUTED"]);
+
+interface Props {
+  searchParams: Promise<{ status?: string }>;
+}
+
+export default async function StudentHistoricoPage({ searchParams }: Props) {
+  const session = await auth();
+  if (!session?.user) redirect("/entrar");
+
+  const { status } = await searchParams;
+  const filter: StatusFilter = (status && VALID_STATUSES.has(status) ? status : "ALL") as StatusFilter;
+
+  const data = await getStudentHistoryData(session.user.id, filter);
+
+  const hasAny = data.total > 0 || filter !== "ALL";
+
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-semibold mb-1" style={{ color: "var(--vl-text-1)" }}>
-        Histórico
-      </h1>
-      <p className="text-sm mb-6" style={{ color: "var(--vl-text-3)" }}>
-        Linha do tempo de aulas concluídas, com notas dadas e recebidas.
-      </p>
-
-      <div className="glass-card rounded-2xl p-10 text-center">
-        <span
-          className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3"
-          style={{ background: "rgba(13,18,16,0.06)", color: "var(--vl-text-3)" }}
-        >
-          <History size={22} />
-        </span>
-        <h2 className="text-base font-medium mb-2" style={{ color: "var(--vl-text-1)" }}>
-          Em construção
-        </h2>
-        <p className="text-sm max-w-sm mx-auto" style={{ color: "var(--vl-text-3)" }}>
-          Story 8.1d — Histórico com timeline, nota dada/recebida e prompt para avaliar aulas pendentes.
+      <header className="mb-6">
+        <h1 className="text-2xl font-semibold" style={{ color: "var(--vl-text-1)" }}>
+          Histórico
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "var(--vl-text-3)" }}>
+          {data.total > 0
+            ? `${data.total} aula${data.total !== 1 ? "s" : ""} no histórico.`
+            : "Suas aulas passadas vão aparecer aqui."}
         </p>
-      </div>
+      </header>
+
+      <RatingPrompt count={data.pendingRatingsCount} />
+
+      {hasAny && (
+        <Suspense>
+          <HistoryFilters />
+        </Suspense>
+      )}
+
+      {data.items.length === 0 ? (
+        filter !== "ALL" ? (
+          <div className="glass-card rounded-2xl p-8 text-center text-sm" style={{ color: "var(--vl-text-3)" }}>
+            Nenhuma aula com este filtro.
+          </div>
+        ) : (
+          <EmptyHistory />
+        )
+      ) : (
+        <LessonTimeline items={data.items} />
+      )}
     </div>
   );
 }

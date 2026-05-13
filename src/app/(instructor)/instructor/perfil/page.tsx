@@ -55,13 +55,7 @@ export default function PerfilPage() {
   }
 
   return (
-    <main
-      className="min-h-screen py-10 px-4"
-      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
-    >
-      <div aria-hidden className="vl-mesh" />
-
-      <div className="max-w-xl mx-auto">
+    <div className="max-w-xl">
         <Link
           href="/instructor/onboarding"
           className="inline-flex items-center gap-1 text-sm mb-8 hover:opacity-70"
@@ -158,12 +152,11 @@ export default function PerfilPage() {
               </p>
             )}
 
-            <Button type="submit" disabled={isPending} className="w-full">
-              {isPending ? "Salvando…" : "Salvar perfil"}
-            </Button>
-          </form>
-        </div>
+          <Button type="submit" disabled={isPending} className="w-full">
+            {isPending ? "Salvando…" : "Salvar perfil"}
+          </Button>
+        </form>
       </div>
-    </main>
+    </div>
   );
 }

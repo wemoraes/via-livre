@@ -33,16 +33,10 @@ export default async function InstructorAulasPage() {
   const fmt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" });
 
   return (
-    <main
-      className="min-h-screen py-10 px-4"
-      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
-    >
-      <div aria-hidden className="vl-mesh" />
-
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-semibold mb-8" style={{ color: "var(--vl-text-1)" }}>
-          Minhas aulas
-        </h1>
+    <div className="max-w-2xl">
+      <h1 className="text-2xl font-semibold mb-6" style={{ color: "var(--vl-text-1)" }}>
+        Minhas aulas
+      </h1>
 
         {lessons.length === 0 ? (
           <div className="glass-card rounded-2xl py-16 text-center">
@@ -119,14 +113,6 @@ export default async function InstructorAulasPage() {
           </>
         )}
 
-        <Link
-          href="/instructor/onboarding"
-          className="block text-center text-xs mt-8 hover:underline"
-          style={{ color: "var(--vl-text-3)" }}
-        >
-          Voltar ao onboarding
-        </Link>
-      </div>
-    </main>
+    </div>
   );
 }

@@ -31,7 +31,7 @@ export default auth((req: NextAuthRequest) => {
     const { role, instructorStatus } = session.user;
     if (role === "INSTRUCTOR") {
       return NextResponse.redirect(
-        new URL(instructorStatus === "ACTIVE" ? "/instructor/aulas" : "/instructor/onboarding", req.url),
+        new URL(instructorStatus === "ACTIVE" ? "/instructor/dashboard" : "/instructor/onboarding", req.url),
       );
     }
     if (role === "STUDENT") {
@@ -47,7 +47,7 @@ export default auth((req: NextAuthRequest) => {
     const { role, instructorStatus } = session.user;
     if (role === "INSTRUCTOR") {
       return NextResponse.redirect(
-        new URL(instructorStatus === "ACTIVE" ? "/instructor/aulas" : "/instructor/onboarding", req.url),
+        new URL(instructorStatus === "ACTIVE" ? "/instructor/dashboard" : "/instructor/onboarding", req.url),
       );
     }
     if (role === "STUDENT") return NextResponse.redirect(new URL("/aluno", req.url));

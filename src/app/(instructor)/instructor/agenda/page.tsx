@@ -68,13 +68,7 @@ export default function AgendaPage() {
   }
 
   return (
-    <main
-      className="min-h-screen py-10 px-4"
-      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
-    >
-      <div aria-hidden className="vl-mesh" />
-
-      <div className="max-w-xl mx-auto">
+    <div className="max-w-xl">
         <Link
           href="/instructor/onboarding"
           className="inline-flex items-center gap-1 text-sm mb-8 hover:opacity-70"
@@ -156,12 +150,11 @@ export default function AgendaPage() {
             </p>
           )}
 
-          <Button onClick={handleSave} disabled={isPending} className="w-full mt-6">
-            <Save size={15} className="mr-2" />
-            {isPending ? "Salvando…" : "Salvar agenda"}
-          </Button>
-        </div>
+        <Button onClick={handleSave} disabled={isPending} className="w-full mt-6">
+          <Save size={15} className="mr-2" />
+          {isPending ? "Salvando…" : "Salvar agenda"}
+        </Button>
       </div>
-    </main>
+    </div>
   );
 }

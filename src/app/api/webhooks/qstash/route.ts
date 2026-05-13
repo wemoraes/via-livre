@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Receiver } from "@upstash/qstash";
 import type { NotificationJob } from "@/lib/qstash";
-import { resend } from "@/lib/email";
+import {
+  sendLessonBookedEmail,
+  sendLessonCancelledEmail,
+  sendDocumentReviewedEmail,
+  sendDocumentExpiringEmail,
+} from "@/lib/email";
+import { recalculateAprovometro } from "@/lib/aprovometro";
+import { prisma } from "@/lib/db";
 
 const receiver = new Receiver({
   currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY!,
@@ -34,24 +41,82 @@ export async function POST(req: NextRequest) {
 }
 
 async function processJob(job: NotificationJob) {
+  const p = job.payload;
+
   switch (job.type) {
     case "lesson.booked":
-    case "lesson.confirmed":
-    case "lesson.cancelled":
+    case "lesson.confirmed": {
+      const lesson = await prisma.lesson.findUnique({
+        where: { id: p.lessonId as string },
+        include: {
+          student: { include: { user: { select: { email: true, name: true } } } },
+          instructor: { include: { user: { select: { name: true } } } },
+        },
+      });
+      if (!lesson) break;
+      await sendLessonBookedEmail({
+        to: lesson.student.user.email!,
+        name: lesson.student.user.name ?? "Aluno",
+        instructorName: lesson.instructor.user.name ?? undefined,
+        scheduledAt: lesson.scheduledAt.toISOString(),
+        meetingPoint: lesson.meetingPoint,
+        priceAmount: Number(lesson.priceAmount),
+        lessonId: lesson.id,
+      });
+      break;
+    }
+
+    case "lesson.cancelled": {
+      const lesson = await prisma.lesson.findUnique({
+        where: { id: p.lessonId as string },
+        include: {
+          student: { include: { user: { select: { email: true, name: true } } } },
+        },
+      });
+      if (!lesson) break;
+      await sendLessonCancelledEmail({
+        to: lesson.student.user.email!,
+        name: lesson.student.user.name ?? "Aluno",
+        lessonId: lesson.id,
+        reason: p.reason as string | undefined,
+      });
+      break;
+    }
+
     case "lesson.completed":
-    case "document.submitted":
-    case "document.reviewed":
-    case "document.expiring":
-      // Email sending — templates built in Epic 9
-      console.log(`[qstash] job received: ${job.type}`, job.payload);
+      // Escrow release handled via confirmLessonCompletion action
       break;
 
+    case "document.submitted":
+      break;
+
+    case "document.reviewed": {
+      const approved = !p.suspended;
+      await sendDocumentReviewedEmail({
+        to: p.email as string,
+        name: p.name as string,
+        documentType: p.documentType as string ?? "Documento",
+        approved: approved as boolean,
+        reason: p.reason as string | undefined,
+      });
+      break;
+    }
+
+    case "document.expiring": {
+      await sendDocumentExpiringEmail({
+        to: p.email as string,
+        name: p.name as string,
+        documentType: p.documentType as string,
+        daysLeft: p.daysLeft as number,
+        expiresAt: p.expiresAt as string | undefined,
+      });
+      break;
+    }
+
     case "aprovometro.recalculate":
-      // Handled in Epic 7 when Aprovômetro lib is built
-      console.log("[qstash] aprovometro recalculate", job.payload);
+      if (p.instructorId) {
+        await recalculateAprovometro(p.instructorId as string);
+      }
       break;
   }
 }
-
-// Keep resend import available for Epic 9 template wiring
-void resend;

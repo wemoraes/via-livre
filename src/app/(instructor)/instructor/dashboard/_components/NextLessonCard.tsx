@@ -63,7 +63,7 @@ export default function NextLessonCard({ lesson }: { lesson: NextInstructorLesso
       )}
 
       <Link
-        href={`/aulas/${lesson.id}`}
+        href={`/instructor/aulas/${lesson.id}`}
         className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-opacity hover:opacity-80"
         style={{ background: "var(--vl-accent)", color: "#ffffff" }}
       >

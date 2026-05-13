@@ -33,7 +33,7 @@ export default function PendingRequestsCard({ requests }: Props) {
         {requests.map((req) => (
           <li key={req.id}>
             <Link
-              href={`/aulas/${req.id}`}
+              href={`/instructor/aulas/${req.id}`}
               className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-white/40 transition-colors"
               style={{ background: "rgba(255,255,255,0.55)", textDecoration: "none" }}
             >

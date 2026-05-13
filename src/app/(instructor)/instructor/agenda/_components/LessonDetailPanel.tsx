@@ -122,19 +122,12 @@ export default function LessonDetailPanel({ lesson, onClose }: Props) {
 
           <div className="flex flex-wrap gap-2">
             <Link
-              href={`/aulas/${lesson.id}`}
+              href={`/instructor/aulas/${lesson.id}`}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-opacity hover:opacity-80"
               style={{ background: "var(--vl-accent)", color: "#ffffff" }}
             >
               Ver detalhes
               <ChevronRight size={14} />
-            </Link>
-            <Link
-              href={`/aulas/${lesson.id}#cancelar`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border transition-colors hover:bg-white/50"
-              style={{ borderColor: "rgba(13,18,16,0.12)", color: "var(--vl-text-2)" }}
-            >
-              Cancelar aula
             </Link>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { Calendar } from "lucide-react";
+import { Calendar, ChevronRight } from "lucide-react";
 import { LessonStatus } from "@prisma/client";
 import { LESSON_STATUS_LABEL, LESSON_STATUS_STYLE } from "@/lib/status-colors";
 import InstructorConfirmButton from "./InstructorConfirmButton";
@@ -54,7 +54,11 @@ export default async function InstructorAulasPage() {
                   {upcoming.map((lesson) => (
                     <li key={lesson.id} className="glass-card rounded-2xl p-4">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
+                        <Link
+                          href={`/instructor/aulas/${lesson.id}`}
+                          className="flex-1 min-w-0"
+                          style={{ textDecoration: "none" }}
+                        >
                           <p className="font-medium text-sm truncate" style={{ color: "var(--vl-text-1)" }}>
                             {lesson.student.user.name}
                           </p>
@@ -62,7 +66,7 @@ export default async function InstructorAulasPage() {
                             {fmt.format(lesson.scheduledAt)}
                           </p>
                           <p className="text-xs mt-0.5" style={{ color: "var(--vl-text-3)" }}>{lesson.meetingPoint}</p>
-                        </div>
+                        </Link>
                         {!lesson.instructorConfirmed ? (
                           <InstructorConfirmButton lessonId={lesson.id} />
                         ) : (
@@ -86,8 +90,12 @@ export default async function InstructorAulasPage() {
               </h2>
               <ul className="space-y-3">
                 {past.map((lesson) => (
-                  <li key={lesson.id} className="glass-card rounded-2xl p-4">
-                    <div className="flex items-center gap-4">
+                  <li key={lesson.id}>
+                    <Link
+                      href={`/instructor/aulas/${lesson.id}`}
+                      className="glass-card rounded-2xl flex items-center gap-4 p-4 hover:shadow-lg transition-all"
+                      style={{ textDecoration: "none" }}
+                    >
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate" style={{ color: "var(--vl-text-1)" }}>
                           {lesson.student.user.name}
@@ -105,7 +113,8 @@ export default async function InstructorAulasPage() {
                       >
                         {LESSON_STATUS_LABEL[lesson.status]}
                       </span>
-                    </div>
+                      <ChevronRight size={15} style={{ color: "var(--vl-text-3)" }} className="shrink-0" />
+                    </Link>
                   </li>
                 ))}
               </ul>

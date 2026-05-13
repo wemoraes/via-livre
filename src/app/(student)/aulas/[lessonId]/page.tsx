@@ -7,7 +7,8 @@ import { LessonStatus } from "@prisma/client";
 import { LESSON_STATUS_LABEL, LESSON_STATUS_STYLE } from "@/lib/status-colors";
 import ConfirmLessonButton from "./ConfirmLessonButton";
 import CancelLessonButton from "./CancelLessonButton";
-import RatingForm from "./RatingForm";
+import RatingForm from "@/components/features/ratings/RatingForm";
+import StarRating from "@/components/ui/StarRating";
 import ExamResultForm from "./ExamResultForm";
 
 interface Props {
@@ -28,7 +29,7 @@ export default async function LessonDetailPage({ params, searchParams }: Props) 
       student: { include: { user: { select: { name: true } } } },
       instructor: { include: { user: { select: { name: true } } } },
       vehicle: { select: { brand: true, model: true, plate: true } },
-      ratings: { select: { authorId: true } },
+      ratings: { select: { authorId: true, score: true, comment: true, role: true } },
     },
   });
 
@@ -40,7 +41,9 @@ export default async function LessonDetailPage({ params, searchParams }: Props) 
   const canConfirm = lesson.status === LessonStatus.CONFIRMED && !lesson.studentConfirmed;
   const canCancel = lesson.status === LessonStatus.PENDING || lesson.status === LessonStatus.CONFIRMED;
   const isCompleted = lesson.status === LessonStatus.COMPLETED;
-  const alreadyRated = lesson.ratings.some((r) => r.authorId === session.user.id);
+  const myRating = lesson.ratings.find((r) => r.authorId === session.user.id);
+  const ratingReceived = lesson.ratings.find((r) => r.authorId !== session.user.id);
+  const alreadyRated = !!myRating;
   const alreadyExamResult = lesson.examResult !== null;
 
   const fmt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "full", timeStyle: "short" });
@@ -138,7 +141,33 @@ export default async function LessonDetailPage({ params, searchParams }: Props) 
 
           {isCompleted && (
             <div className="space-y-6 mt-6 pt-5" style={{ borderTop: "1px solid rgba(13,18,16,0.08)" }}>
-              {!alreadyRated && <RatingForm lessonId={lesson.id} />}
+              {(myRating || ratingReceived) && (
+                <div className="space-y-2">
+                  {myRating && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span style={{ color: "var(--vl-text-3)" }}>Você avaliou:</span>
+                      <StarRating score={myRating.score} size={14} />
+                      {myRating.comment && (
+                        <span className="text-xs italic" style={{ color: "var(--vl-text-3)" }}>
+                          “{myRating.comment}”
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {ratingReceived && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span style={{ color: "var(--vl-text-3)" }}>Você foi avaliado:</span>
+                      <StarRating score={ratingReceived.score} size={14} />
+                      {ratingReceived.comment && (
+                        <span className="text-xs italic" style={{ color: "var(--vl-text-3)" }}>
+                          “{ratingReceived.comment}”
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              {!alreadyRated && <RatingForm lessonId={lesson.id} targetLabel="instrutor" />}
               {!alreadyExamResult && <ExamResultForm lessonId={lesson.id} />}
             </div>
           )}

@@ -33,7 +33,7 @@ export default function UpcomingLessonsList({ upcoming, totalUpcoming }: Props) 
         {upcoming.map((lesson) => (
           <li key={lesson.id}>
             <Link
-              href={`/aulas/${lesson.id}`}
+              href={`/instructor/aulas/${lesson.id}`}
               className="glass-card rounded-2xl flex items-center gap-4 p-4 hover:shadow-lg transition-all"
               style={{ textDecoration: "none" }}
             >

@@ -10,7 +10,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "audit:bmad": "tsx scripts/spec-audit.ts",
+    "audit:bmad:debt": "tsx scripts/spec-audit.ts --debt",
+    "audit:bmad:strict": "tsx scripts/spec-audit.ts --strict",
+    "seed:test": "tsx scripts/seed-test-users.ts",
+    "smoke:search": "tsx scripts/smoke-test-search.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
@@ -56,6 +61,7 @@
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

@@ -46,13 +46,7 @@ export default async function LessonDetailPage({ params, searchParams }: Props) 
   const fmt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "full", timeStyle: "short" });
 
   return (
-    <main
-      className="min-h-screen py-10 px-4"
-      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
-    >
-      <div aria-hidden className="vl-mesh" />
-
-      <div className="max-w-xl mx-auto">
+    <div className="max-w-xl">
         <Link
           href="/aulas"
           className="inline-flex items-center gap-1 text-sm mb-8 hover:opacity-70"
@@ -148,8 +142,7 @@ export default async function LessonDetailPage({ params, searchParams }: Props) 
               {!alreadyExamResult && <ExamResultForm lessonId={lesson.id} />}
             </div>
           )}
-        </div>
       </div>
-    </main>
+    </div>
   );
 }

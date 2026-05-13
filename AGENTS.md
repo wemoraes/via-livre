@@ -36,6 +36,29 @@ For corrections to in-flight plans, use `bmad-correct-course` (CC).
 - If the user asks for something off-pipeline ("just fix it", "go ahead"), explicitly propose the BMAD path before executing — do not assume consent to skip.
 - Use the BMAD personas (Sally for UX, Winston for architecture, Amelia for dev, etc.) by invoking the corresponding skill, not by inventing your own framing.
 - Brownfield retrofits (work already done outside the pipeline) MUST be backfilled with story + CR docs before committing.
+- **Epic is "done" ONLY when every Story under it has both `story-epic-X.Y-*.md` AND `cr-epic-X.Y-*.md` in `_bmad-output/implementation-artifacts/`.** Build green ≠ Epic done. Code shipped ≠ Epic done. The audit is the single source of truth.
+
+## Automated guardrails
+
+The project enforces the pipeline via `scripts/spec-audit.ts`:
+
+```bash
+npm run audit:bmad         # report-only, dia-a-dia
+npm run audit:bmad:debt    # exit 1 se houver Story nova fora da allowlist (pre-commit usa isso)
+npm run audit:bmad:strict  # exit 1 se houver QUALQUER Story sem story+CR (uso em CI)
+```
+
+- `.bmad-debt.json` na raiz lista Stories conhecidas como brownfield (código existe, falta retrofit dos artifacts). Stories NOVAS em `epics.md` que não estiverem na allowlist quebram o commit.
+- O hook `git config core.hooksPath .git-hooks` está ativo — `.git-hooks/pre-commit` roda `npm run audit:bmad:debt`. **Nunca usar `--no-verify` salvo emergência declarada pelo usuário.**
+- A allowlist é dívida explícita, não desculpa permanente. Conforme cada Story for retroativamente coberta com story+CR, remova o ID de `.bmad-debt.json`.
+
+## Anti-padrões proibidos
+
+- Declarar "Epic X implementado" sem rodar `npm run audit:bmad:strict` antes — declarações baseadas em "build passa" mascararam o gap inteiro do painel do aluno (Epic 8) no MVP.
+- Implementar feature nova sem antes criar `story-epic-X.Y-*.md` — o pipeline existe pra isso.
+- Adicionar Story nova em `epics.md` sem em paralelo criar o story file OU explicitamente adicioná-la à allowlist com justificativa.
+- Pular `bmad-sprint-planning` (SP) e ir direto pra `bmad-dev-story` — sem sprint plan, ACs caem no esquecimento.
+- Confiar em sumários memorizados ("todos os 10 Epics implementados") sem rodar o audit. Memória mente; o filesystem não.
 
 ## Reference
 

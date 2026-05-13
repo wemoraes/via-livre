@@ -165,24 +165,17 @@ export default function AgendarPage({ params }: Props) {
 
   if (!instructor) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div aria-hidden className="vl-mesh" />
+      <div className="flex items-center justify-center py-20">
         <div
           className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
           style={{ borderColor: "var(--vl-accent) transparent var(--vl-accent) var(--vl-accent)" }}
         />
-      </main>
+      </div>
     );
   }
 
   return (
-    <main
-      className="min-h-screen py-10 px-4"
-      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
-    >
-      <div aria-hidden className="vl-mesh" />
-
-      <div className="max-w-xl mx-auto">
+    <div className="max-w-xl">
         <Link
           href={`/instrutores/${instructorId}`}
           className="inline-flex items-center gap-1 text-sm mb-8 hover:opacity-70"
@@ -304,10 +297,9 @@ export default function AgendarPage({ params }: Props) {
               <Button type="button" disabled={isPending} className="w-full" onClick={handleConfirm}>
                 {isPending ? "Aguarde…" : "Continuar para pagamento"}
               </Button>
-            )}
-          </>
-        )}
-      </div>
-    </main>
+          )}
+        </>
+      )}
+    </div>
   );
 }

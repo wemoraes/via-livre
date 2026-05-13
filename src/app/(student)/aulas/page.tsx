@@ -22,68 +22,61 @@ export default async function AulasPage() {
   });
 
   return (
-    <main
-      className="min-h-screen py-10 px-4"
-      style={{ fontFamily: "var(--font-plus-jakarta-sans), system-ui, sans-serif" }}
-    >
-      <div aria-hidden className="vl-mesh" />
+    <div className="max-w-2xl">
+      <h1 className="text-2xl font-semibold mb-6" style={{ color: "var(--vl-text-1)" }}>
+        Minhas aulas
+      </h1>
 
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-semibold mb-8" style={{ color: "var(--vl-text-1)" }}>
-          Minhas aulas
-        </h1>
-
-        {lessons.length === 0 ? (
-          <div className="glass-card rounded-2xl py-16 text-center">
-            <Calendar size={40} className="mx-auto mb-4" style={{ color: "var(--vl-text-3)", opacity: 0.5 }} />
-            <h2 className="text-base font-medium mb-2" style={{ color: "var(--vl-text-1)" }}>
-              Nenhuma aula agendada ainda
-            </h2>
-            <p className="text-sm mb-6 max-w-xs mx-auto" style={{ color: "var(--vl-text-3)" }}>
-              Encontre um instrutor credenciado perto de você e agende sua primeira aula.
-            </p>
-            <Link
-              href="/instrutores"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-80"
-              style={{ background: "var(--vl-accent)", color: "#fff" }}
-            >
-              <Search size={15} />
-              Buscar instrutores
-            </Link>
-          </div>
-        ) : (
-          <ul className="space-y-3">
-            {lessons.map((lesson) => (
-              <li key={lesson.id}>
-                <Link
-                  href={`/aulas/${lesson.id}`}
-                  className="glass-card rounded-2xl flex items-center gap-4 p-4 hover:shadow-lg transition-all"
-                  style={{ textDecoration: "none" }}
+      {lessons.length === 0 ? (
+        <div className="glass-card rounded-2xl py-16 text-center">
+          <Calendar size={40} className="mx-auto mb-4" style={{ color: "var(--vl-text-3)", opacity: 0.5 }} />
+          <h2 className="text-base font-medium mb-2" style={{ color: "var(--vl-text-1)" }}>
+            Nenhuma aula agendada ainda
+          </h2>
+          <p className="text-sm mb-6 max-w-xs mx-auto" style={{ color: "var(--vl-text-3)" }}>
+            Encontre um instrutor credenciado perto de você e agende sua primeira aula.
+          </p>
+          <Link
+            href="/instrutores"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-80"
+            style={{ background: "var(--vl-accent)", color: "#fff" }}
+          >
+            <Search size={15} />
+            Buscar instrutores
+          </Link>
+        </div>
+      ) : (
+        <ul className="space-y-3">
+          {lessons.map((lesson) => (
+            <li key={lesson.id}>
+              <Link
+                href={`/aulas/${lesson.id}`}
+                className="glass-card rounded-2xl flex items-center gap-4 p-4 hover:shadow-lg transition-all"
+                style={{ textDecoration: "none" }}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate" style={{ color: "var(--vl-text-1)" }}>
+                    {lesson.instructor.user.name}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--vl-text-3)" }}>
+                    {fmt.format(lesson.scheduledAt)}
+                  </p>
+                </div>
+                <span
+                  className="text-xs px-2.5 py-1 rounded-full font-medium shrink-0"
+                  style={{
+                    color: LESSON_STATUS_STYLE[lesson.status].color,
+                    background: LESSON_STATUS_STYLE[lesson.status].bg,
+                  }}
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate" style={{ color: "var(--vl-text-1)" }}>
-                      {lesson.instructor.user.name}
-                    </p>
-                    <p className="text-xs mt-0.5" style={{ color: "var(--vl-text-3)" }}>
-                      {fmt.format(lesson.scheduledAt)}
-                    </p>
-                  </div>
-                  <span
-                    className="text-xs px-2.5 py-1 rounded-full font-medium shrink-0"
-                    style={{
-                      color: LESSON_STATUS_STYLE[lesson.status].color,
-                      background: LESSON_STATUS_STYLE[lesson.status].bg,
-                    }}
-                  >
-                    {LESSON_STATUS_LABEL[lesson.status]}
-                  </span>
-                  <ChevronRight size={15} style={{ color: "var(--vl-text-3)" }} className="shrink-0" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </main>
+                  {LESSON_STATUS_LABEL[lesson.status]}
+                </span>
+                <ChevronRight size={15} style={{ color: "var(--vl-text-3)" }} className="shrink-0" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

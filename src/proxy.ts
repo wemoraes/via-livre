@@ -35,7 +35,7 @@ export default auth((req: NextAuthRequest) => {
       );
     }
     if (role === "STUDENT") {
-      return NextResponse.redirect(new URL("/aulas", req.url));
+      return NextResponse.redirect(new URL("/aluno", req.url));
     }
     if (role === "ADMIN") {
       return NextResponse.redirect(new URL("/admin/documentos", req.url));
@@ -50,7 +50,7 @@ export default auth((req: NextAuthRequest) => {
         new URL(instructorStatus === "ACTIVE" ? "/instructor/aulas" : "/instructor/onboarding", req.url),
       );
     }
-    if (role === "STUDENT") return NextResponse.redirect(new URL("/aulas", req.url));
+    if (role === "STUDENT") return NextResponse.redirect(new URL("/aluno", req.url));
     if (role === "ADMIN") return NextResponse.redirect(new URL("/admin/documentos", req.url));
   }
 

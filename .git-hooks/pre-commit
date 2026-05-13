@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# BMAD pipeline guardrail — falha commit se houver Story nova em epics.md sem artifact
+# Stories conhecidas como brownfield estão em .bmad-debt.json (allowlist)
+#
+# Para configurar este hook:
+#   git config core.hooksPath .git-hooks
+#
+# Para pular pontualmente (NÃO recomendado):
+#   git commit --no-verify
+
+set -e
+
+if [ ! -f scripts/spec-audit.ts ]; then
+  exit 0
+fi
+
+echo "→ BMAD spec-audit (modo --debt)..."
+npx tsx scripts/spec-audit.ts --debt

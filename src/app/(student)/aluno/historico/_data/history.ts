@@ -10,12 +10,8 @@ export interface HistoryLessonItem {
   status: LessonStatus;
   instructorName: string;
   meetingPoint: string;
-  /** rating tied to this lesson (max 1 — schema constraint). null if not yet rated. */
-  rating: {
-    score: number;
-    role: UserRole; // STUDENT = "Você avaliou"; INSTRUCTOR = "Você foi avaliado"
-    isOwnAuthor: boolean; // true if the current student authored this rating
-  } | null;
+  ratingGiven: { score: number } | null; // aluno → instrutor
+  ratingReceived: { score: number } | null; // instrutor → aluno
 }
 
 export interface StudentHistoryData {
@@ -53,7 +49,7 @@ export async function getStudentHistoryData(
       where,
       include: {
         instructor: { include: { user: { select: { name: true } } } },
-        rating: { select: { score: true, role: true, authorId: true } },
+        ratings: { select: { score: true, role: true, authorId: true } },
       },
       orderBy: { scheduledAt: "desc" },
       take: 30,
@@ -63,25 +59,24 @@ export async function getStudentHistoryData(
       where: {
         studentId: student.id,
         status: LessonStatus.COMPLETED,
-        rating: null,
+        ratings: { none: { authorId: userId } },
       },
     }),
   ]);
 
-  const items: HistoryLessonItem[] = lessons.map((l) => ({
-    id: l.id,
-    scheduledAt: l.scheduledAt,
-    status: l.status,
-    instructorName: l.instructor.user.name ?? "Instrutor",
-    meetingPoint: l.meetingPoint,
-    rating: l.rating
-      ? {
-          score: l.rating.score,
-          role: l.rating.role,
-          isOwnAuthor: l.rating.authorId === userId,
-        }
-      : null,
-  }));
+  const items: HistoryLessonItem[] = lessons.map((l) => {
+    const given = l.ratings.find((r) => r.authorId === userId);
+    const received = l.ratings.find((r) => r.role === UserRole.INSTRUCTOR && r.authorId !== userId);
+    return {
+      id: l.id,
+      scheduledAt: l.scheduledAt,
+      status: l.status,
+      instructorName: l.instructor.user.name ?? "Instrutor",
+      meetingPoint: l.meetingPoint,
+      ratingGiven: given ? { score: given.score } : null,
+      ratingReceived: received ? { score: received.score } : null,
+    };
+  });
 
   return { items, pendingRatingsCount, total };
 }

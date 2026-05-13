@@ -28,7 +28,7 @@ export default async function LessonDetailPage({ params, searchParams }: Props) 
       student: { include: { user: { select: { name: true } } } },
       instructor: { include: { user: { select: { name: true } } } },
       vehicle: { select: { brand: true, model: true, plate: true } },
-      rating: { select: { id: true } },
+      ratings: { select: { authorId: true } },
     },
   });
 
@@ -40,7 +40,7 @@ export default async function LessonDetailPage({ params, searchParams }: Props) 
   const canConfirm = lesson.status === LessonStatus.CONFIRMED && !lesson.studentConfirmed;
   const canCancel = lesson.status === LessonStatus.PENDING || lesson.status === LessonStatus.CONFIRMED;
   const isCompleted = lesson.status === LessonStatus.COMPLETED;
-  const alreadyRated = Boolean(lesson.rating);
+  const alreadyRated = lesson.ratings.some((r) => r.authorId === session.user.id);
   const alreadyExamResult = lesson.examResult !== null;
 
   const fmt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "full", timeStyle: "short" });

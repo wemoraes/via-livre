@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronRight, Pencil } from "lucide-react";
-import { LessonStatus, UserRole } from "@prisma/client";
+import { LessonStatus } from "@prisma/client";
 import { formatLessonDateTime } from "@/lib/datetime";
 import { LESSON_STATUS_LABEL, LESSON_STATUS_STYLE } from "@/lib/status-colors";
 import StarRating from "@/components/ui/StarRating";
@@ -16,7 +16,8 @@ export default function LessonTimeline({ items }: Props) {
   return (
     <ol className="space-y-3">
       {items.map((lesson) => {
-        const isPendingRating = lesson.status === LessonStatus.COMPLETED && lesson.rating === null;
+        const isPendingRating = lesson.status === LessonStatus.COMPLETED && lesson.ratingGiven === null;
+        const hasAnyRating = lesson.ratingGiven !== null || lesson.ratingReceived !== null;
         return (
           <li
             key={lesson.id}
@@ -44,14 +45,20 @@ export default function LessonTimeline({ items }: Props) {
                     {lesson.meetingPoint}
                   </p>
 
-                  {lesson.rating && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs" style={{ color: "var(--vl-text-3)" }}>
-                        {lesson.rating.role === UserRole.STUDENT
-                          ? "Você avaliou:"
-                          : "Você foi avaliado:"}
-                      </span>
-                      <StarRating score={lesson.rating.score} size={12} />
+                  {hasAnyRating && (
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                      {lesson.ratingGiven && (
+                        <div className="inline-flex items-center gap-1.5">
+                          <span className="text-xs" style={{ color: "var(--vl-text-3)" }}>Você avaliou:</span>
+                          <StarRating score={lesson.ratingGiven.score} size={12} />
+                        </div>
+                      )}
+                      {lesson.ratingReceived && (
+                        <div className="inline-flex items-center gap-1.5">
+                          <span className="text-xs" style={{ color: "var(--vl-text-3)" }}>Você recebeu:</span>
+                          <StarRating score={lesson.ratingReceived.score} size={12} />
+                        </div>
+                      )}
                     </div>
                   )}
 

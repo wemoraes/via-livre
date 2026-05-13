@@ -42,7 +42,9 @@ export async function submitRating(
   const targetId = isStudent ? lesson.instructor.user.id : lesson.student.user.id;
   const role = isStudent ? UserRole.STUDENT : UserRole.INSTRUCTOR;
 
-  const existing = await prisma.rating.findUnique({ where: { lessonId } });
+  const existing = await prisma.rating.findUnique({
+    where: { lessonId_authorId: { lessonId, authorId: session.user.id } },
+  });
   if (existing) return err("Você já avaliou esta aula");
 
   await prisma.rating.create({

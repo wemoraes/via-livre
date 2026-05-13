@@ -292,7 +292,7 @@ model Lesson {
   student    StudentProfile    @relation("StudentLessons", fields: [studentId], references: [id])
   instructor InstructorProfile @relation("InstructorLessons", fields: [instructorId], references: [id])
   vehicle    Vehicle           @relation(fields: [vehicleId], references: [id])
-  rating     Rating?
+  ratings    Rating[]
 
   @@index([studentId])
   @@index([instructorId])
@@ -305,7 +305,7 @@ model Lesson {
 
 model Rating {
   id       String   @id @default(cuid())
-  lessonId String   @unique // one rating per lesson
+  lessonId String   // bidirectional: max 1 rating por (lesson, author)
   authorId String   // userId of reviewer
   targetId String   // userId of reviewed
   role     UserRole // role of the author (STUDENT rated instructor, or INSTRUCTOR rated student)
@@ -317,6 +317,8 @@ model Rating {
   author  User   @relation("RatingAuthor", fields: [authorId], references: [id])
   target  User   @relation("RatingTarget", fields: [targetId], references: [id])
 
+  @@unique([lessonId, authorId])
+  @@index([lessonId])
   @@index([targetId])
   @@index([authorId])
 }
